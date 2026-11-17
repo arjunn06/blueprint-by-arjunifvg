@@ -189,7 +189,7 @@ function Enroll() {
       email={data?.profile?.email ?? ""}
       intro={
         <>
-          <h1 className="font-display text-[clamp(2.4rem,5vw,3.8rem)] font-extrabold leading-[1.04] tracking-[-0.04em]">
+          <h1 className="font-display text-[clamp(2.4rem,5vw,3.8rem)] font-medium leading-[1.04] tracking-[-0.02em]">
             Confirm your seat in the Red Pill.
           </h1>
           <p className="mt-6 max-w-[44ch] text-lg leading-relaxed text-muted-foreground">
@@ -200,7 +200,7 @@ function Enroll() {
       }
     >
       <h2 className="text-sm font-medium text-muted-foreground">The Red Pill, one-time payment</h2>
-      <p className="mt-2 font-display tabular text-6xl font-extrabold leading-none tracking-[-0.04em]">
+      <p className="mt-2 font-display tabular text-6xl font-medium leading-none tracking-[-0.02em]">
         {formatRupees(RED_PILL_BASE_PAISE)}
       </p>
       <p className="mt-2 text-sm text-muted-foreground">

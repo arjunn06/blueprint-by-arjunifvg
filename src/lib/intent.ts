@@ -42,3 +42,6 @@ export function postAuthTarget(): "/app" | "/enroll" {
   getIntent();
   return getRedPillInviteToken() ? "/enroll" : "/app";
 }
+
+/** Set while a new member is out on Discord's OAuth screen so /app/discord can send them back to /welcome. */
+export const WELCOME_RETURN_KEY = "bp_welcome_return";

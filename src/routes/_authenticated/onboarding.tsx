@@ -7,14 +7,11 @@ import {
   completeOnboarding,
   signAvatarUrl,
 } from "@/lib/profile.functions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Loader2, Check, X, Camera, User } from "lucide-react";
-import { LogoIcon } from "@/components/logo-icon";
-import { cn } from "@/lib/utils";
+import { CircleNotch, Check, X, Camera, ImageSquare } from "@phosphor-icons/react";
+import { FlowBody, FlowField, FlowHeading, FlowShell } from "@/components/site/flow-kit";
+import { btnPrimary } from "@/components/site/ui";
 import { postAuthTarget } from "@/lib/intent";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -26,6 +23,7 @@ const handleRegex = /^[a-zA-Z0-9_]{3,20}$/;
 function Onboarding() {
   const navigate = useNavigate();
   const [uid, setUid] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [handle, setHandle] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -47,6 +45,7 @@ function Onboarding() {
         return;
       }
       setUid(data.user.id);
+      setEmail(data.user.email ?? "");
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name, handle, avatar_url")
@@ -159,139 +158,132 @@ function Onboarding() {
     }
   }
 
+  const handleBlocked =
+    !handle ||
+    handleStatus === "checking" ||
+    handleStatus === "taken" ||
+    handleStatus === "reserved" ||
+    handleStatus === "invalid";
+  const canContinue = !!fullName.trim() && !handleBlocked && !saving && !uploading;
+
+  const { hint, tone } = handleHint(handleStatus, handle);
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border/70">
-        <div className="mx-auto max-w-6xl px-6 h-14 flex items-center gap-2.5">
-          <LogoIcon className="size-7 text-foreground" />
-          <span className="font-semibold tracking-tight">Blueprint</span>
-        </div>
-      </header>
-      <div className="flex-1 flex items-center justify-center px-6 py-14">
-        <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-semibold tracking-tight">Set up your profile</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Just a few details so members can recognise you.
-          </p>
+    <FlowShell signedInEmail={email}>
+      <FlowHeading title="Hello, Nice to meet you! 👋" subtitle="How do we call you?" />
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-            {/* Avatar */}
-            <div className="flex flex-col items-center gap-3">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="group relative size-24 rounded-full bg-surface border border-border overflow-hidden hover:border-foreground/40 transition-colors"
-              >
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <User className="size-8 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  {uploading ? (
-                    <Loader2 className="size-5 text-white animate-spin" />
-                  ) : (
-                    <Camera className="size-5 text-white" />
-                  )}
-                </div>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarPick}
-              />
-              <p className="text-xs text-muted-foreground">
-                {avatarUrl ? "Tap to change photo" : "Add a profile photo (optional)"}
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="name" className="text-xs text-muted-foreground">Name</Label>
-              <Input
-                id="name"
-                required
-                autoComplete="name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your name"
-                className="mt-1.5 bg-surface border-border h-10 rounded-lg"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="handle" className="text-xs text-muted-foreground">Handle</Label>
-              <div className="relative mt-1.5">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                  @
-                </span>
-                <Input
-                  id="handle"
-                  required
-                  autoComplete="off"
-                  value={handle}
-                  onChange={(e) =>
-                    setHandle(
-                      e.target.value.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20),
-                    )
-                  }
-                  placeholder="yourhandle"
-                  className="bg-surface border-border h-10 rounded-lg pl-7 pr-9"
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <HandleStatusIcon status={handleStatus} />
-                </div>
-              </div>
-              <HandleStatusText status={handleStatus} />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={saving || handleStatus === "checking"}
-              className="w-full h-10 rounded-lg"
+      <FlowBody as="form" size="sm" onSubmit={handleSubmit} noValidate className="gap-5">
+        {/* Avatar: dashed placeholder until a photo is picked. */}
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            aria-label={avatarUrl ? "Change profile photo" : "Add a profile photo"}
+            className={`group relative grid size-[120px] place-items-center overflow-hidden rounded-full transition-colors ${
+              avatarUrl
+                ? "border border-border"
+                : "border border-dashed border-tertiary/60 bg-hover hover:bg-border/60"
+            }`}
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="size-full object-cover" />
+            ) : (
+              <ImageSquare className="size-[57px] text-tertiary" weight="regular" />
+            )}
+            <span
+              className={`absolute inset-0 grid place-items-center bg-black/55 text-white transition-opacity ${
+                uploading
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+              }`}
             >
-              {saving ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Saving…
-                </>
+              {uploading ? (
+                <CircleNotch className="size-6 animate-spin" weight="bold" />
               ) : (
-                "Continue"
+                <Camera className="size-6" weight="bold" />
               )}
-            </Button>
-          </form>
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarPick}
+          />
+          <p className="text-hint text-tertiary">
+            {avatarUrl ? "Tap to change photo" : "Add a profile photo (optional)"}
+          </p>
         </div>
-      </div>
-    </div>
+
+        <FlowField
+          id="name"
+          name="name"
+          autoComplete="name"
+          aria-label="Your name"
+          placeholder="Your Name"
+          required
+          maxLength={80}
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+        />
+
+        <FlowField
+          id="handle"
+          name="handle"
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          aria-label="User id"
+          placeholder="@user_id"
+          required
+          value={handle ? `@${handle}` : ""}
+          onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20))}
+          tone={tone}
+          hint={hint}
+          trailing={<HandleStatusIcon status={handleStatus} />}
+        />
+
+        <button type="submit" disabled={!canContinue} className={`${btnPrimary} w-full`}>
+          {saving ? (
+            <>
+              <CircleNotch className="size-4 animate-spin" weight="bold" />
+              Saving
+            </>
+          ) : (
+            "Continue"
+          )}
+        </button>
+      </FlowBody>
+    </FlowShell>
   );
 }
 
 function HandleStatusIcon({ status }: { status: string }) {
-  if (status === "checking")
-    return <Loader2 className="size-4 text-muted-foreground animate-spin" />;
-  if (status === "available") return <Check className="size-4 text-primary" />;
+  if (status === "checking") return <CircleNotch className="size-4 animate-spin" weight="bold" />;
+  if (status === "available") return <Check className="size-4 text-success" weight="bold" />;
   if (status === "taken" || status === "reserved" || status === "invalid")
-    return <X className="size-4 text-destructive" />;
+    return <X className="size-4 text-destructive" weight="bold" />;
   return null;
 }
 
-function HandleStatusText({ status }: { status: string }) {
-  if (status === "idle" || status === "checking") return null;
-  const msg =
-    status === "available"
-      ? "Handle is available"
-      : status === "taken"
-        ? "That handle is taken"
-        : status === "reserved"
-          ? "That handle is reserved"
-          : "3–20 letters, numbers, or underscores";
-  const cls = cn(
-    "mt-1 text-[11px]",
-    status === "available" ? "text-primary" : "text-destructive",
-  );
-  return <p className={cls}>{msg}</p>;
+function handleHint(
+  status: string,
+  handle: string,
+): { hint: string; tone: "default" | "error" | "success" } {
+  switch (status) {
+    case "available":
+      return { hint: `@${handle} is available!`, tone: "success" };
+    case "taken":
+      return { hint: "That user id is taken", tone: "error" };
+    case "reserved":
+      return { hint: "That user id is reserved", tone: "error" };
+    case "invalid":
+      return { hint: "3–20 letters, numbers or underscores", tone: "error" };
+    case "checking":
+      return { hint: "Checking…", tone: "default" };
+    default:
+      return { hint: "Pick a unique user id.", tone: "default" };
+  }
 }

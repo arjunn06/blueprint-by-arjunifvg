@@ -55,10 +55,10 @@ function PaymentsPage() {
           <FilterChip label="Product" />
         </div>
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 rounded-lg border border-border/70 text-xs inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+          <button className="h-8 px-3 border border-border/70 text-xs inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
             <Download className="size-3.5" /> Export
           </button>
-          <button className="h-8 px-3 rounded-lg border border-border/70 text-xs inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
+          <button className="h-8 px-3 border border-border/70 text-xs inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
             <Pencil className="size-3.5" /> Edit
           </button>
         </div>

@@ -69,7 +69,7 @@ function AuditLogPage() {
           placeholder="Search action, actor, target…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="h-8 w-64 text-xs bg-surface border-border rounded-lg"
+          className="h-8 w-64 text-xs bg-surface border-border"
         />
       </div>
 

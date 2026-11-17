@@ -335,7 +335,7 @@ function CourseStructure() {
                   onChange={(e) =>
                     setEditingModule({ ...editingModule, title: e.target.value })
                   }
-                  className="h-11 rounded-lg"
+                  className="h-11"
                   placeholder="Enter a name"
                 />
               </FieldLabel>
@@ -471,7 +471,7 @@ function LessonEditor({
       </div>
 
       {/* Video area */}
-      <div className="mt-6 rounded-2xl border border-border bg-surface/60 bg-gradient-subtle min-h-[360px] p-6 md:p-10">
+      <div className="mt-6 rounded-field border border-border bg-surface/60 bg-gradient-subtle min-h-[360px] p-6 md:p-10">
         {f.video_url ? (
           <div className="space-y-4">
             <div className="aspect-video rounded-xl border border-border bg-black overflow-hidden">
@@ -586,7 +586,7 @@ function LessonEditor({
                   duration_seconds: e.target.value ? Number(e.target.value) : null,
                 })
               }
-              className="h-10 rounded-lg"
+              className="h-10"
               placeholder="e.g. 540"
             />
           </FieldLabel>
@@ -595,7 +595,7 @@ function LessonEditor({
               type="number"
               value={f.sort_order ?? 0}
               onChange={(e) => setF({ ...f, sort_order: Number(e.target.value) })}
-              className="h-10 rounded-lg"
+              className="h-10"
             />
           </FieldLabel>
         </div>

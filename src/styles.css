@@ -64,39 +64,97 @@
   --color-pill-red: var(--pill-red);
   --color-pill-blue: var(--pill-blue);
   --color-ink: var(--ink);
+  --color-primary-disabled: var(--primary-disabled);
+  --color-primary-disabled-foreground: var(--primary-disabled-foreground);
+  --color-tertiary: var(--text-tertiary);
+  --color-placeholder: var(--text-placeholder);
+  --color-action: var(--action);
+  --color-active: var(--active);
+  --color-blue-10: var(--blue-10);
+  --color-stepper-idle: var(--stepper-idle);
+
+  /* Figma shape scale: fields and cards 20, panels 24, floating shell 40, hero photo 45, buttons pill. */
+  --radius-field: 20px;
+  --radius-panel: 24px;
+  --radius-shell: 40px;
+  --radius-photo: 45px;
+
+  /* Figma effects: Input Field/Default, Buttons/Medium + Large, App card, sidebar. */
+  --shadow-field: 0 0 2.5px rgb(0 0 0 / 0.03);
+  --shadow-btn: 0 0 8px rgb(0 0 0 / 0.06);
+  --shadow-btn-md: 0 0 7.5px rgb(0 0 0 / 0.08);
+  --shadow-btn-lg: 0 0 16px rgb(0 0 0 / 0.06);
+  --shadow-card: 0 2px 20px rgb(0 0 0 / 0.02);
+  --shadow-shell: 0 4px 50px rgb(0 0 0 / 0.05);
+
+  /* Figma type scale (Inter, tracking -2%): Header, Title - Medium, Body - Large, Body, Hint, Button value. */
+  --text-header: 48px;
+  --text-header--line-height: 60px;
+  --text-header--letter-spacing: -0.02em;
+  --text-header--font-weight: 500;
+  --text-title: 34px;
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.01em;
+  --text-title--font-weight: 600;
+  --text-lead: 20px;
+  --text-lead--line-height: 1.35;
+  --text-lead--letter-spacing: -0.02em;
+  --text-body: 16px;
+  --text-body--line-height: 20px;
+  --text-body--letter-spacing: -0.02em;
+  --text-hint: 13px;
+  --text-hint--line-height: 20px;
+  --text-hint--letter-spacing: -0.02em;
+  --text-btn: 14px;
+  --text-btn--line-height: 1.2;
+  --text-btn--letter-spacing: -0.02em;
+  --text-btn--font-weight: 500;
 }
 
-:root {
+/*
+ * Light theme = the Figma "Essential Colors" + "Buttons" palette. `.light` re-declares it so a
+ * light page can sit inside a dark <html> (the public site is dark by default).
+ */
+:root,
+.light {
   --radius: 0.5rem;
+  color-scheme: light;
 
-  /* Light theme (used inside the member app when the toggle is set to light). */
-  --background: hsl(210 20% 98%);
-  --foreground: hsl(220 22% 8%);
-  --surface: hsl(0 0% 100%);
-  --surface-2: hsl(214 18% 95%);
-  --hover: hsl(214 16% 91%);
+  --background: #ffffff;
+  --foreground: #000000;
+  --surface: #ffffff;
+  --surface-2: #f9f9f9; /* Buttons/Secondary/bg */
+  --hover: #f5f5f5; /* Buttons/Secondary/bg-hover */
   --card: var(--surface);
-  --card-foreground: hsl(220 22% 8%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(220 22% 8%);
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
 
-  --primary: hsl(220 16% 9%);
-  --primary-foreground: hsl(0 0% 98%);
+  --primary: #262626; /* Buttons/Primary/bg */
+  --primary-foreground: #ffffff;
+  --primary-disabled: #6d6d6d;
+  --primary-disabled-foreground: #ffffff;
   --secondary: var(--surface-2);
-  --secondary-foreground: hsl(220 22% 8%);
+  --secondary-foreground: #000000;
 
   --muted: var(--surface-2);
-  --muted-foreground: hsl(218 9% 38%);
+  --muted-foreground: rgb(0 0 0 / 0.6); /* Text/secondary */
+  --text-tertiary: rgb(0 0 0 / 0.4);
+  --text-placeholder: rgb(0 0 0 / 0.33);
+  --action: #2469ff; /* Text/action & hyperlink */
+  --active: #2381ed; /* Borders/active */
+  --blue-10: #f0f7fe;
   --accent: var(--hover);
-  --accent-foreground: hsl(220 22% 8%);
-  --destructive: hsl(4 72% 48%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --success: hsl(152 55% 32%);
+  --accent-foreground: #000000;
+  --destructive: #b42522;
+  --destructive-foreground: #ffffff;
+  --success: hsl(142 55% 32%);
   --warning: hsl(38 90% 42%);
 
-  --border: hsl(214 14% 88%);
-  --input: hsl(214 18% 95%);
+  --border: #e7ecf4; /* Borders/primary */
+  --input: #ffffff;
   --ring: hsl(220 10% 35%);
+  --stepper-idle: rgb(0 0 0 / 0.3);
 
   --pill-red: hsl(4 72% 52%);
   --pill-blue: hsl(214 80% 52%);
@@ -108,17 +166,19 @@
   --chart-4: hsl(38 85% 48%);
   --chart-5: hsl(218 9% 45%);
 
-  --sidebar: hsl(0 0% 100%);
-  --sidebar-foreground: hsl(220 18% 20%);
-  --sidebar-primary: hsl(220 16% 9%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(214 18% 95%);
-  --sidebar-accent-foreground: hsl(220 22% 8%);
-  --sidebar-border: hsl(214 14% 88%);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #262626;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--blue-10);
+  --sidebar-accent-foreground: var(--active);
+  --sidebar-border: #e7ecf4;
   --sidebar-ring: hsl(220 10% 35%);
 }
 
 .dark {
+  color-scheme: dark;
+
   --background: hsl(220 14% 5%);
   --foreground: hsl(210 18% 94%);
   --surface: hsl(220 12% 8%);
@@ -131,11 +191,18 @@
 
   --primary: hsl(210 14% 96%);
   --primary-foreground: hsl(220 16% 7%);
+  --primary-disabled: hsl(220 8% 30%);
+  --primary-disabled-foreground: hsl(210 10% 72%);
   --secondary: var(--surface-2);
   --secondary-foreground: hsl(210 18% 94%);
 
   --muted: var(--surface-2);
   --muted-foreground: hsl(214 9% 64%);
+  --text-tertiary: hsl(214 9% 50%);
+  --text-placeholder: hsl(214 9% 46%);
+  --action: hsl(220 100% 72%);
+  --active: hsl(214 90% 66%);
+  --blue-10: hsl(214 45% 14%);
   --accent: var(--hover);
   --accent-foreground: hsl(210 18% 94%);
   --destructive: hsl(4 74% 58%);
@@ -146,6 +213,7 @@
   --border: hsl(220 10% 17%);
   --input: hsl(220 11% 11%);
   --ring: hsl(210 10% 70%);
+  --stepper-idle: hsl(220 8% 32%);
 
   --pill-red: hsl(4 78% 60%);
   --pill-blue: hsl(214 90% 66%);
@@ -161,8 +229,8 @@
   --sidebar-foreground: hsl(210 14% 88%);
   --sidebar-primary: hsl(210 14% 96%);
   --sidebar-primary-foreground: hsl(220 16% 7%);
-  --sidebar-accent: hsl(220 11% 11%);
-  --sidebar-accent-foreground: hsl(210 18% 94%);
+  --sidebar-accent: hsl(214 45% 14%);
+  --sidebar-accent-foreground: hsl(214 90% 66%);
   --sidebar-border: hsl(220 10% 13%);
   --sidebar-ring: hsl(210 10% 70%);
 }
@@ -183,6 +251,12 @@
   html { scroll-behavior: smooth; }
   ::selection { background: hsl(0 0% 100% / 0.22); }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+}
+
+/* A light page (Blue Pill flow) inside the default dark <html>: keep the canvas behind it light too. */
+html:has(.page-light),
+html:has(.page-light) body {
+  background-color: #ffffff;
 }
 
 @layer utilities {
@@ -367,7 +441,7 @@
   gap: 8px;
   height: 48px;
   padding-inline: 24px;
-  border-radius: 8px;
+  border-radius: 500px;
   background: #fff;
   color: hsl(220 14% 6%);
   font-size: 16px;

@@ -8,12 +8,28 @@ import {
 } from "@/lib/billing.functions";
 import { validatePromoCode } from "@/lib/promos.functions";
 import { getAccountOverview } from "@/lib/account.functions";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { openRazorpay } from "@/lib/razorpay-checkout";
 import { BLUE_PILL_BASE_PAISE, BLUE_PILL_TOTAL_PAISE, gstOn, formatRupees } from "@/lib/pricing";
 import { toast } from "sonner";
-import { Check, ArrowRight, Tag, X as XIcon, CircleNotch } from "@phosphor-icons/react";
-import { CheckoutShell } from "@/components/site/checkout-shell";
+import {
+  BellRinging,
+  Broadcast,
+  CircleNotch,
+  DiscordLogo,
+  NotePencil,
+  Star,
+  VideoCamera,
+  X as XIcon,
+} from "@phosphor-icons/react";
+import {
+  AppCard,
+  FlowBody,
+  FlowField,
+  FlowHeading,
+  FlowShell,
+  TINT,
+} from "@/components/site/flow-kit";
 import { btnPrimary } from "@/components/site/ui";
 import { getIntent } from "@/lib/intent";
 
@@ -56,6 +72,12 @@ function Subscribe() {
     await refetch();
     return false;
   }
+  // Set once a payment lands so the "already subscribed" redirect doesn't beat the welcome flow.
+  const paidRef = useRef(false);
+  function goWelcome() {
+    paidRef.current = true;
+    navigate({ to: "/welcome" });
+  }
   const [codeInput, setCodeInput] = useState("");
   const [applied, setApplied] = useState<{
     code: string;
@@ -79,7 +101,7 @@ function Subscribe() {
   });
 
   useEffect(() => {
-    if (data?.isSubscribed) navigate({ to: "/app" });
+    if (data?.isSubscribed && !paidRef.current) navigate({ to: "/app" });
   }, [data?.isSubscribed, navigate]);
 
   // Red Pill registrations are closed — clear any legacy intent so it can't
@@ -109,7 +131,7 @@ function Subscribe() {
         toast.success(
           `Trial started. First charge on ${new Date(trialEndsAt).toLocaleDateString()}`,
         );
-        navigate({ to: "/app" });
+        goWelcome();
         return;
       }
       try {
@@ -132,9 +154,10 @@ function Subscribe() {
                   razorpay_signature: resp.razorpay_signature,
                 },
               });
+              paidRef.current = true;
               toast.success("You're in.");
               await qc.invalidateQueries({ queryKey: ["account", "overview"] });
-              navigate({ to: "/app" });
+              goWelcome();
             } catch (e: any) {
               // Fall back to server-side reconciliation — the webhook or a
               // Razorpay poll will confirm the charge.
@@ -142,7 +165,7 @@ function Subscribe() {
               const ok = await pollReconcile();
               if (ok) {
                 toast.success("You're in.");
-                navigate({ to: "/app" });
+                goWelcome();
               } else {
                 toast.error(e.message ?? "Payment verification failed");
               }
@@ -152,7 +175,7 @@ function Subscribe() {
             ondismiss: () => {
               // User closed checkout — if a charge did land, sync it.
               pollReconcile(15_000).then((ok) => {
-                if (ok) navigate({ to: "/app" });
+                if (ok) goWelcome();
               });
             },
           },
@@ -163,135 +186,184 @@ function Subscribe() {
     },
   });
 
+  const firstName = data?.profile?.full_name?.trim().split(/\s+/)[0];
+  const price = payLabel(applied);
+
   return (
-    <CheckoutShell
-      tone="blue"
-      email={data?.profile?.email ?? ""}
-      intro={
-        <>
-          <h1 className="font-display text-[clamp(2.4rem,5vw,3.8rem)] font-extrabold leading-[1.04] tracking-[-0.04em]">
-            Activate your Blue Pill membership.
-          </h1>
-          <p className="mt-6 max-w-[44ch] text-lg leading-relaxed text-muted-foreground">
-            Start your subscription to unlock every recorded session, live NY calls and the
-            members-only Discord.
-          </p>
-        </>
-      }
-    >
-      <h2 className="text-sm font-medium text-muted-foreground">The Blue Pill, monthly</h2>
-      <p className="mt-2 font-display tabular text-6xl font-extrabold leading-none tracking-[-0.04em]">
-        {formatRupees(BLUE_PILL_BASE_PAISE)}
-        <span className="ml-2 font-sans text-base font-normal tracking-normal text-muted-foreground">
-          /month
-        </span>
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        + {formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST (18%) ={" "}
-        <span className="font-semibold text-foreground">{formatRupees(BLUE_PILL_TOTAL_PAISE)}</span>{" "}
-        per month. Billed monthly through Razorpay.
-      </p>
+    <FlowShell signedInEmail={data?.profile?.email ?? ""}>
+      <FlowHeading
+        title={
+          firstName
+            ? `${firstName}, an overview of your membership 🚀`
+            : "An overview of your membership 🚀"
+        }
+        subtitle="Here’s what you are getting with your subscription"
+      />
 
-      <ul className="mt-7 space-y-3">
-        {[
-          "Every recorded session, uncut",
-          "Live NY session calls",
-          "Members-only Discord role",
-          "Cancel anytime, no lock-in",
-        ].map((f) => (
-          <li key={f} className="flex items-start gap-3 text-[15px] leading-snug">
-            <Check className="mt-0.5 size-4 shrink-0 text-primary" weight="bold" />
-            {f}
-          </li>
-        ))}
-      </ul>
+      <FlowBody size="sm" className="gap-5">
+        <ul className="grid grid-cols-1 gap-5 min-[420px]:grid-cols-2">
+          {BENEFITS.map(({ icon: Icon, tint, title, body }) => (
+            <li key={title} className="flex">
+              <AppCard
+                className="w-full"
+                tint={tint}
+                title={title}
+                icon={<Icon className="size-5" weight="regular" />}
+              >
+                {body}
+              </AppCard>
+            </li>
+          ))}
+        </ul>
 
-      <button
-        type="button"
-        onClick={() => mut.mutate()}
-        disabled={mut.isPending}
-        className={`${btnPrimary} mt-8 w-full`}
-      >
-        {mut.isPending ? (
-          "Opening checkout"
-        ) : (
-          <>
-            {applied?.discount_type === "trial_days"
-              ? `Start ${applied.discount_value}-day free trial`
-              : applied?.discount_type === "percent_off_first"
-                ? `Subscribe, ${applied.discount_value}% off first month`
-                : applied?.discount_type === "amount_off_first"
-                  ? `Subscribe, ₹${applied.discount_value} off first month`
-                  : `Subscribe for ${formatRupees(BLUE_PILL_TOTAL_PAISE)}/month`}
-            <ArrowRight className="size-4" weight="bold" />
-          </>
-        )}
-      </button>
-
-      {/* Promo code */}
-      <div className="mt-4">
-        {applied ? (
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3.5 py-2.5">
-            <div className="flex items-center gap-2 text-sm">
-              <Tag className="size-4 text-primary" weight="bold" />
-              <span className="font-semibold">{applied.code}</span>
-              <span className="text-muted-foreground">
-                {applied.discount_type === "trial_days"
-                  ? `${applied.discount_value} free trial days`
-                  : applied.discount_type === "percent_off_first"
-                    ? `${applied.discount_value}% off first month`
-                    : `₹${applied.discount_value} off first month`}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setApplied(null);
-                setCodeInput("");
-              }}
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              aria-label="Remove code"
-            >
-              <XIcon className="size-4" weight="bold" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Tag className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={codeInput}
-                onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && codeInput.trim()) {
-                    e.preventDefault();
-                    apply.mutate();
-                  }
+        {/* Coupon: placeholder field, green hint once the code checks out. */}
+        <FlowField
+          name="coupon"
+          aria-label="Coupon code (optional)"
+          placeholder="Coupon code (optional)"
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          value={applied ? applied.code : codeInput}
+          readOnly={!!applied}
+          active={!!applied}
+          onChange={(e) => setCodeInput(e.target.value.toUpperCase().replace(/\s/g, ""))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (!applied && codeInput.trim() && !apply.isPending) apply.mutate();
+            }
+          }}
+          className="pr-24"
+          tone={apply.isError && !applied ? "error" : applied ? "success" : "default"}
+          hint={
+            applied
+              ? `${applied.code} is valid. ${discountCopy(applied)}`
+              : apply.isError
+                ? (apply.error as Error).message || "That code isn’t valid."
+                : undefined
+          }
+          trailing={
+            applied ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setApplied(null);
+                  setCodeInput("");
+                  apply.reset();
                 }}
-                placeholder="Promo code"
-                aria-label="Promo code"
-                className="h-10 w-full rounded-lg border border-border bg-input pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => codeInput.trim() && apply.mutate()}
-              disabled={!codeInput.trim() || apply.isPending}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-4 text-sm font-semibold transition-colors hover:bg-hover disabled:opacity-50"
-            >
-              {apply.isPending ? (
-                <CircleNotch className="size-4 animate-spin" weight="bold" />
-              ) : (
-                "Apply"
-              )}
-            </button>
-          </div>
-        )}
-      </div>
+                aria-label="Remove code"
+                className="grid size-8 place-items-center rounded-full transition-colors hover:bg-hover hover:text-foreground"
+              >
+                <XIcon className="size-4" weight="bold" />
+              </button>
+            ) : codeInput.trim() ? (
+              <button
+                type="button"
+                onClick={() => apply.mutate()}
+                disabled={apply.isPending}
+                className="inline-flex h-8 items-center rounded-full px-3 text-btn text-action transition-opacity hover:opacity-80 disabled:opacity-60"
+              >
+                {apply.isPending ? (
+                  <CircleNotch className="size-4 animate-spin" weight="bold" />
+                ) : (
+                  "Apply"
+                )}
+              </button>
+            ) : null
+          }
+        />
 
-      <p className="mt-4 text-center text-xs text-muted-foreground">
-        Secure checkout by Razorpay. Cancel anytime from Settings.
-      </p>
-    </CheckoutShell>
+        <button
+          type="button"
+          onClick={() => mut.mutate()}
+          disabled={mut.isPending}
+          className={`${btnPrimary} w-full`}
+        >
+          {mut.isPending ? (
+            <>
+              <CircleNotch className="size-4 animate-spin" weight="bold" />
+              Opening checkout
+            </>
+          ) : (
+            price
+          )}
+        </button>
+
+        <p className="text-center text-hint text-tertiary">
+          {formatRupees(BLUE_PILL_BASE_PAISE)} + {formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST
+          (18%) = {formatRupees(BLUE_PILL_TOTAL_PAISE)} a month, billed through Razorpay. Cancel
+          anytime from Settings.
+        </p>
+      </FlowBody>
+    </FlowShell>
   );
+}
+
+type AppliedPromo = {
+  code: string;
+  discount_type: "percent_off_first" | "amount_off_first" | "trial_days";
+  discount_value: number;
+  description: string | null;
+};
+
+const BENEFITS = [
+  {
+    icon: VideoCamera,
+    tint: TINT.sky,
+    title: "IFVG Course",
+    body: "Arjun’s personal strategy with proven 70% winrate",
+  },
+  {
+    icon: BellRinging,
+    tint: TINT.mint,
+    title: "Trade alerts",
+    body: "Get exclusive trade alerts to learn the strategy easily.",
+  },
+  {
+    icon: NotePencil,
+    tint: TINT.sand,
+    title: "Trade Journal app",
+    body: "Get an exclusive powerful trading journal tool",
+  },
+  {
+    icon: DiscordLogo,
+    tint: TINT.lilac,
+    title: "Discord",
+    body: "Members only discord with an inner circle community",
+  },
+  {
+    icon: Star,
+    tint: TINT.mint,
+    title: "Weekly Premium content",
+    body: "Get weekly premium exclusive learning content",
+  },
+  {
+    icon: Broadcast,
+    tint: TINT.mint,
+    title: "Exclusive livestreams",
+    body: "Access to exclusive livestreams",
+  },
+] as const;
+
+function discountCopy(p: AppliedPromo) {
+  if (p.discount_type === "trial_days") return `You got ${p.discount_value} days free.`;
+  if (p.discount_type === "percent_off_first")
+    return `You got ${p.discount_value}% off on your first month.`;
+  return `You got ₹${p.discount_value} off on your first month.`;
+}
+
+/** First charge after the code (list price incl. GST), or null for a free trial. */
+function firstChargePaise(p: AppliedPromo): number | null {
+  if (p.discount_type === "trial_days") return null;
+  if (p.discount_type === "percent_off_first")
+    return Math.round((BLUE_PILL_TOTAL_PAISE * (100 - p.discount_value)) / 100);
+  return Math.max(0, BLUE_PILL_TOTAL_PAISE - p.discount_value * 100);
+}
+
+function payLabel(p: AppliedPromo | null) {
+  if (!p) return `Pay ${formatRupees(BLUE_PILL_TOTAL_PAISE)}/month`;
+  const first = firstChargePaise(p);
+  if (first === null) return `Start ${p.discount_value}-day free trial`;
+  return `Pay ${formatRupees(first)} today`;
 }

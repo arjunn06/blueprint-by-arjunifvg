@@ -13,7 +13,7 @@ import { SiteShell, SiteNav, SiteFooter } from "@/components/site/shell";
 import { Reveal, Rise } from "@/components/site/reveal";
 import { PillCapsule } from "@/components/site/pill-capsule";
 import { MobileCtaBar } from "@/components/site/mobile-cta";
-import { btnLink, btnPrimary, container } from "@/components/site/ui";
+import { btnLink, btnPrimary, btnSm, container } from "@/components/site/ui";
 
 const TITLE = "The Blue Pill | ₹499/mo IFVG Community | Blueprint";
 
@@ -77,10 +77,10 @@ const PHASES = [
 function BluePill() {
   const heroEnd = useRef<HTMLDivElement>(null);
   return (
-    <SiteShell>
+    <SiteShell theme="light">
       <SiteNav
         cta={
-          <Link to="/auth" className={`${btnPrimary} !h-10 !px-4 !text-sm`}>
+          <Link to="/auth" className={`${btnPrimary} ${btnSm}`}>
             Join<span className="hidden sm:inline">&nbsp;for ₹499/month + taxes</span>
           </Link>
         }
@@ -108,14 +108,14 @@ function Hero({ endRef }: { endRef: React.RefObject<HTMLDivElement | null> }) {
     <section className="relative">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[620px] bg-[radial-gradient(900px_420px_at_85%_-10%,hsl(214_80%_55%/0.2),transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[620px] bg-[radial-gradient(900px_420px_at_85%_-10%,hsl(214_80%_55%/0.1),transparent_70%)]"
       />
       <div
         className={`${container} relative grid items-center gap-14 py-14 lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:py-16`}
       >
         <div>
           <Rise i={0}>
-            <h1 className="font-display text-[clamp(2.4rem,5.2vw,4rem)] font-extrabold leading-[1.04] tracking-[-0.04em]">
+            <h1 className="font-display text-[clamp(2.4rem,5.2vw,4rem)] font-medium leading-[1.04] tracking-[-0.02em]">
               <span className="text-foreground/50">Premium education doesn't mean</span> premium
               price.
             </h1>
@@ -139,7 +139,7 @@ function Hero({ endRef }: { endRef: React.RefObject<HTMLDivElement | null> }) {
 
         <Rise i={2} className="relative mx-auto w-full max-w-[640px] lg:max-w-none">
           <div className="relative pb-6 sm:pb-12 lg:pr-4">
-            <div className="ml-auto w-[88%] overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_50px_120px_-40px_hsl(214_80%_40%/0.45),0_30px_60px_-30px_hsl(220_30%_2%/0.9)]">
+            <div className="ml-auto w-[88%] overflow-hidden rounded-panel border border-border bg-surface shadow-shell">
               <img
                 src="/img/discord-preview.png"
                 width={935}
@@ -149,7 +149,7 @@ function Hero({ endRef }: { endRef: React.RefObject<HTMLDivElement | null> }) {
                 fetchPriority="high"
               />
             </div>
-            <div className="absolute -bottom-2 left-0 w-[36%] min-w-[130px] max-w-[230px] rotate-[2.5deg] overflow-hidden rounded-xl border border-border shadow-[0_40px_70px_-25px_hsl(220_30%_2%/0.95)] sm:bottom-0">
+            <div className="absolute -bottom-2 left-0 w-[36%] min-w-[130px] max-w-[230px] rotate-[2.5deg] overflow-hidden rounded-field border border-border shadow-shell sm:bottom-0">
               <img
                 src="/img/course-curriculum.png"
                 width={402}
@@ -179,7 +179,7 @@ function Curriculum() {
       <div className={`${container} grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24`}>
         <div className="lg:sticky lg:top-28 lg:self-start">
           <Reveal>
-            <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-extrabold leading-[1.1] tracking-[-0.035em]">
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-medium leading-[1.1] tracking-[-0.02em]">
               Nine modules. One blueprint.
             </h2>
             <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-muted-foreground">
@@ -201,7 +201,7 @@ function Curriculum() {
           />
           {PHASES.map((ph) => (
             <li key={ph.name} className="pb-12 last:pb-0">
-              <p className="relative font-display text-xl font-bold tracking-tight text-muted-foreground">
+              <p className="relative font-display text-xl font-medium tracking-[-0.02em] text-muted-foreground">
                 <span
                   aria-hidden
                   className="absolute -left-10 top-1.5 size-[15px] rounded-full border-2 border-primary bg-background md:-left-14 md:size-[19px]"
@@ -213,10 +213,10 @@ function Curriculum() {
                   <li key={m.n}>
                     <Reveal y={14}>
                       <div className="flex gap-5">
-                        <span className="w-7 shrink-0 pt-1 font-mono text-sm tabular text-primary">
+                        <span className="w-7 shrink-0 pt-1 font-mono text-sm tabular text-active">
                           {m.n}
                         </span>
-                        <span className="font-display text-xl font-bold leading-snug tracking-tight md:text-[1.6rem]">
+                        <span className="font-display text-xl font-medium leading-snug tracking-[-0.02em] md:text-[1.6rem]">
                           {m.t}
                         </span>
                       </div>
@@ -239,7 +239,7 @@ function Inside() {
     <section className="border-t border-border py-24 md:py-32">
       <div className={container}>
         <Reveal>
-          <h2 className="max-w-3xl font-display text-[clamp(2rem,4.5vw,3.4rem)] font-extrabold leading-[1.1] tracking-[-0.035em]">
+          <h2 className="max-w-3xl font-display text-[clamp(2rem,4.5vw,3.4rem)] font-medium leading-[1.1] tracking-[-0.02em]">
             What your ₹499 unlocks.
           </h2>
         </Reveal>
@@ -247,17 +247,17 @@ function Inside() {
         <div className="mt-14 grid gap-4 lg:grid-cols-12">
           <Reveal className="lg:col-span-7">
             <div
-              className="relative flex h-full min-h-[300px] flex-col justify-end overflow-hidden rounded-2xl border border-pill-blue/25 p-8"
+              className="relative flex h-full min-h-[300px] flex-col justify-end overflow-hidden rounded-panel border border-active/20 p-8"
               style={{
                 background:
-                  "radial-gradient(520px 320px at 100% 0%, hsl(214 80% 50% / 0.28), transparent 65%), linear-gradient(180deg, hsl(214 24% 10%), var(--surface))",
+                  "radial-gradient(520px 320px at 100% 0%, hsl(214 80% 50% / 0.14), transparent 65%), linear-gradient(180deg, var(--blue-10), var(--surface))",
               }}
             >
               <PlayCircleIcon
-                className="absolute right-8 top-8 size-14 text-pill-blue"
+                className="absolute right-8 top-8 size-14 text-active"
                 weight="duotone"
               />
-              <h3 className="font-display text-3xl font-extrabold leading-tight tracking-tight">
+              <h3 className="font-display text-3xl font-medium leading-tight tracking-[-0.02em]">
                 Every recording, uncut
               </h3>
               <p className="mt-3 max-w-[44ch] text-base leading-relaxed text-muted-foreground">
@@ -267,9 +267,9 @@ function Inside() {
             </div>
           </Reveal>
           <Reveal delay={0.08} className="lg:col-span-5">
-            <div className="flex h-full min-h-[300px] flex-col justify-end rounded-2xl border border-border bg-surface p-8">
-              <DiscordLogoIcon className="mb-auto size-12 text-[#8e99ff]" weight="fill" />
-              <h3 className="font-display text-2xl font-extrabold leading-tight tracking-tight">
+            <div className="flex h-full min-h-[300px] flex-col justify-end rounded-panel border border-border bg-surface p-8">
+              <DiscordLogoIcon className="mb-auto size-12 text-[#5865F2]" weight="fill" />
+              <h3 className="font-display text-2xl font-medium leading-tight tracking-[-0.02em]">
                 Trade alerts and the Discord
               </h3>
               <p className="mt-3 text-base leading-relaxed text-muted-foreground">
@@ -279,12 +279,12 @@ function Inside() {
           </Reveal>
 
           <Reveal className="lg:col-span-5">
-            <div className="relative flex h-full min-h-[220px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-surface-2 p-8">
+            <div className="relative flex h-full min-h-[220px] flex-col justify-end overflow-hidden rounded-panel border border-border bg-surface-2 p-8">
               <BroadcastIcon
                 className="absolute right-7 top-7 size-10 text-primary"
                 weight="regular"
               />
-              <h3 className="font-display text-2xl font-extrabold tracking-tight">
+              <h3 className="font-display text-2xl font-medium tracking-[-0.02em]">
                 Live trading streams
               </h3>
               <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
@@ -293,9 +293,9 @@ function Inside() {
             </div>
           </Reveal>
           <Reveal delay={0.08} className="lg:col-span-4">
-            <div className="flex h-full min-h-[220px] flex-col justify-end rounded-2xl border border-border bg-surface p-8">
+            <div className="flex h-full min-h-[220px] flex-col justify-end rounded-panel border border-border bg-surface p-8">
               <ChatsCircleIcon className="mb-auto size-10 text-primary" weight="regular" />
-              <h3 className="font-display text-2xl font-extrabold tracking-tight">
+              <h3 className="font-display text-2xl font-medium tracking-[-0.02em]">
                 One private call a month
               </h3>
               <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
@@ -304,9 +304,9 @@ function Inside() {
             </div>
           </Reveal>
           <Reveal delay={0.16} className="lg:col-span-3">
-            <div className="flex h-full min-h-[220px] flex-col justify-end rounded-2xl bg-primary p-8 text-primary-foreground">
+            <div className="flex h-full min-h-[220px] flex-col justify-end rounded-panel bg-primary p-8 text-primary-foreground">
               <ProhibitIcon className="mb-auto size-10" weight="regular" />
-              <h3 className="font-display text-2xl font-extrabold leading-tight tracking-tight">
+              <h3 className="font-display text-2xl font-medium leading-tight tracking-[-0.02em]">
                 Cancel anytime
               </h3>
               <p className="mt-2 text-[15px] leading-snug opacity-80">No lock-in.</p>
@@ -326,10 +326,10 @@ function Pricing() {
       <div className={container}>
         <Reveal>
           <div
-            className="relative overflow-hidden rounded-3xl border border-pill-blue/25 p-8 md:p-14"
+            className="relative overflow-hidden rounded-shell border border-active/20 p-8 md:p-14"
             style={{
               background:
-                "radial-gradient(800px 420px at 100% 0%, hsl(214 80% 50% / 0.28), transparent 65%), linear-gradient(180deg, hsl(214 24% 10%), var(--surface))",
+                "radial-gradient(800px 420px at 100% 0%, hsl(214 80% 50% / 0.14), transparent 65%), linear-gradient(180deg, var(--blue-10), var(--surface))",
             }}
           >
             <PillCapsule
@@ -337,10 +337,10 @@ function Pricing() {
               className="absolute right-8 top-10 hidden w-40 rotate-[20deg] md:block"
             />
             <div className="relative max-w-2xl">
-              <h2 className="font-display text-[clamp(2.2rem,5vw,3.8rem)] font-extrabold leading-[1.04] tracking-[-0.04em]">
+              <h2 className="font-display text-[clamp(2.2rem,5vw,3.8rem)] font-medium leading-[1.04] tracking-[-0.02em]">
                 Take the Blue Pill, Neo. The gates are open.
               </h2>
-              <p className="mt-8 font-display tabular text-6xl font-extrabold leading-none tracking-[-0.04em]">
+              <p className="mt-8 font-display tabular text-6xl font-medium leading-none tracking-[-0.02em]">
                 ₹499
                 <span className="ml-2 font-sans text-base font-normal tracking-normal text-muted-foreground">
                   /month + taxes

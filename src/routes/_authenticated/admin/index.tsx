@@ -41,7 +41,7 @@ function AdminHome() {
     <div className="space-y-12">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-[-0.035em] md:text-[2.4rem] md:leading-[1.05]">
+          <h1 className="font-display text-3xl font-medium tracking-[-0.02em] md:text-[2.4rem] md:leading-[1.05]">
             Overview
           </h1>
           <p className="mt-3 text-[15px] text-muted-foreground">
@@ -59,7 +59,7 @@ function AdminHome() {
           <div>
             <p className="text-sm text-muted-foreground">Revenue today</p>
             <div className="mt-3 flex flex-wrap items-center gap-4">
-              <p className="font-display text-5xl font-extrabold tracking-[-0.04em] tabular-nums md:text-6xl">
+              <p className="font-display text-5xl font-medium tracking-[-0.02em] tabular-nums md:text-6xl">
                 {formatINR(todayRev)}
               </p>
               <Delta value={delta} />
@@ -67,7 +67,7 @@ function AdminHome() {
           </div>
           <div className="md:text-right">
             <p className="text-sm text-muted-foreground">Yesterday</p>
-            <p className="mt-3 font-display text-3xl font-bold tracking-[-0.03em] tabular-nums text-muted-foreground">
+            <p className="mt-3 font-display text-3xl font-bold tracking-[-0.02em] tabular-nums text-muted-foreground">
               {formatINR(yesterdayRev)}
             </p>
           </div>

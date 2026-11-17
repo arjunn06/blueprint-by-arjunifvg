@@ -99,7 +99,7 @@ function RedPillApplicationsPage() {
           placeholder="Search name, email, phone…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="h-8 w-64 rounded-lg border-border bg-surface text-xs"
+          className="h-8 w-64 border-border bg-surface text-xs"
         />
       </div>
 

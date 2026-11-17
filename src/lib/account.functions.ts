@@ -9,7 +9,7 @@ export const getAccountOverview = createServerFn({ method: "GET" })
     const [{ data: profile }, { data: subscription }, { data: roles }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, email, full_name, avatar_url, discord_user_id, created_at")
+        .select("id, email, full_name, handle, avatar_url, discord_user_id, created_at")
         .eq("id", userId)
         .maybeSingle(),
       supabase

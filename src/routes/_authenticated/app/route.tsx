@@ -5,9 +5,10 @@ import { useEffect } from "react";
 import { getAccountOverview } from "@/lib/account.functions";
 import { type NavItem } from "@/components/app/sidebar";
 import { MemberShell } from "@/components/app/ui-kit";
-import { LayoutDashboard, BookOpen, Settings, Shield } from "lucide-react";
+import { LayoutDashboard, BookOpen, NotebookPen, Settings, Shield } from "lucide-react";
 import { DiscordIcon } from "@/components/discord-icon";
 import { getIntent } from "@/lib/intent";
+import { JOURNAL_PILLS, JOURNAL_URL } from "@/lib/journal";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Blueprint" }] }),
@@ -45,20 +46,33 @@ function AppLayout() {
 
   const isRedPill = data?.pill === "red";
 
+  const showJournal = !!data?.isSubscribed && JOURNAL_PILLS.includes(data.pill);
+
   const items: NavItem[] = isRedPill
-    ? [{ to: "/app/discord", label: "Discord role", icon: <DiscordIcon className="size-4" /> }]
+    ? [{ to: "/app/discord", label: "Discord role", icon: <DiscordIcon className="size-5" /> }]
     : [
-        { to: "/app", label: "Home", icon: <LayoutDashboard className="size-4" /> },
-        { to: "/app/courses", label: "Courses", icon: <BookOpen className="size-4" /> },
-        { to: "/app/discord", label: "Discord role", icon: <DiscordIcon className="size-4" /> },
-        { to: "/app/settings", label: "Settings", icon: <Settings className="size-4" /> },
+        { to: "/app", label: "Home", icon: <LayoutDashboard className="size-5" /> },
+        { to: "/app/courses", label: "Courses", icon: <BookOpen className="size-5" /> },
+        ...(showJournal
+          ? [
+              {
+                to: "/app/journal",
+                href: JOURNAL_URL,
+                label: "Trade Journal",
+                icon: <NotebookPen className="size-5" />,
+              },
+            ]
+          : []),
+        { to: "/app/discord", label: "Discord role", icon: <DiscordIcon className="size-5" /> },
+        { to: "/app/settings", label: "Settings", icon: <Settings className="size-5" /> },
       ];
   if (data?.isAdmin) {
-    items.push({ to: "/admin", label: "Admin", icon: <Shield className="size-4" /> });
+    items.push({ to: "/admin", label: "Admin", icon: <Shield className="size-5" /> });
   }
 
   const user = {
     name: data?.profile?.full_name ?? null,
+    handle: data?.profile?.handle ?? null,
     email: data?.profile?.email ?? null,
     avatarUrl: data?.profile?.avatar_url ?? null,
   };

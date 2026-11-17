@@ -114,7 +114,7 @@ function CoursesAdmin() {
                 published: false,
               })
             }
-            className="group aspect-[16/10] rounded-2xl border border-dashed border-border hover:border-primary/60 hover:bg-hover/40 transition-colors grid place-items-center text-muted-foreground hover:text-foreground"
+            className="group aspect-[16/10] rounded-field border border-dashed border-border hover:border-primary/60 hover:bg-hover/40 transition-colors grid place-items-center text-muted-foreground hover:text-foreground"
           >
             <div className="flex flex-col items-center gap-2">
               <div className="size-10 rounded-full border border-border grid place-items-center group-hover:border-primary/60">
@@ -147,7 +147,7 @@ function CourseCard({
 }) {
   const [menu, setMenu] = useState(false);
   return (
-    <div className="group relative rounded-2xl border border-border bg-surface overflow-hidden card-hover">
+    <div className="group relative rounded-field border border-border bg-surface overflow-hidden card-hover">
       <Link
         to="/admin/courses/$id"
         params={{ id: course.id }}
@@ -253,7 +253,7 @@ function CourseDialog({
               value={f.title ?? ""}
               onChange={(e) => setF({ ...f, title: e.target.value })}
               placeholder="Enter a name"
-              className="h-11 rounded-lg"
+              className="h-11"
             />
           </Field>
           <Field label="Description">

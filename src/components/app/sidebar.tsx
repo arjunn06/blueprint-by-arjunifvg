@@ -9,6 +9,8 @@ export type NavItem = {
   to: string;
   label: string;
   icon: ReactNode;
+  /** Opens in a new tab instead of routing (e.g. the IFVG Journal). */
+  href?: string;
 };
 
 export type NavSection = {
@@ -18,6 +20,7 @@ export type NavSection = {
 
 export type SidebarUser = {
   name?: string | null;
+  handle?: string | null;
   email?: string | null;
   avatarUrl?: string | null;
 };
@@ -99,7 +102,7 @@ export function AppSidebar({
       <Link to="/" className="group flex items-center gap-2.5">
         <LogoIcon className="size-8 text-foreground" />
         <div className="min-w-0">
-          <p className="font-display text-[17px] font-extrabold leading-none tracking-tight">
+          <p className="font-display text-[17px] font-medium leading-none tracking-tight">
             {brand?.label ?? "Blueprint"}
           </p>
           {brand?.sub && <p className="mt-1.5 text-xs text-muted-foreground">{brand.sub}</p>}
@@ -175,7 +178,7 @@ export function UserAvatar({
   return (
     <div
       className={cn(
-        "rounded-xl bg-surface-2 border border-border grid place-items-center overflow-hidden shrink-0",
+        "rounded-full bg-hover border border-border grid place-items-center overflow-hidden shrink-0",
         className,
       )}
       style={{ width: size, height: size }}
@@ -188,7 +191,7 @@ export function UserAvatar({
           referrerPolicy="no-referrer"
         />
       ) : user.name || user.email ? (
-        <span className="text-[11px] font-medium leading-none">{initials}</span>
+        <span className="text-[11px] font-medium leading-none tracking-[-0.02em]">{initials}</span>
       ) : (
         <User className="size-1/2 text-muted-foreground" />
       )}
@@ -233,7 +236,7 @@ export function TopBar({
       <Link to="/" className="flex items-center gap-2.5 pl-12 md:pl-0">
         <LogoIcon className="size-8 text-foreground" />
         <div className="min-w-0 leading-tight">
-          <p className="font-display text-[15px] font-extrabold tracking-tight">
+          <p className="font-display text-[15px] font-medium tracking-tight">
             {brand?.label ?? "Blueprint"}
           </p>
           {brand?.sub && <p className="text-xs text-muted-foreground">{brand.sub}</p>}
@@ -256,7 +259,7 @@ export function PageHeader({
   return (
     <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-[-0.035em] md:text-[2.4rem] md:leading-[1.05]">
+        <h1 className="font-display text-3xl font-medium tracking-[-0.02em] md:text-[2.4rem] md:leading-[1.1]">
           {title}
         </h1>
         {description && (
@@ -272,7 +275,9 @@ export function PageHeader({
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={cn("rounded-2xl border border-border bg-surface", className)}>{children}</div>
+    <div className={cn("rounded-field border border-border bg-surface shadow-card", className)}>
+      {children}
+    </div>
   );
 }
 

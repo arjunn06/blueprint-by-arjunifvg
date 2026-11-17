@@ -124,7 +124,7 @@ function SettingsPage() {
             <div>
               <Label className="text-xs text-muted-foreground">Avatar</Label>
               <div className="mt-1.5 flex items-center gap-4">
-                <div className="size-16 rounded-2xl overflow-hidden bg-surface-2 border border-border flex items-center justify-center shrink-0">
+                <div className="size-16 rounded-field overflow-hidden bg-surface-2 border border-border flex items-center justify-center shrink-0">
                   {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />

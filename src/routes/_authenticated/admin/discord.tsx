@@ -124,7 +124,7 @@ function ConfigCard() {
   if (!connected) {
     return (
       <Card className="p-10 text-center">
-        <div className="mx-auto size-14 rounded-2xl bg-primary/10 border border-primary/20 grid place-items-center">
+        <div className="mx-auto size-14 rounded-field bg-primary/10 border border-primary/20 grid place-items-center">
           <LinkIcon className="size-6 text-primary" />
         </div>
         <h3 className="mt-4 text-xl font-semibold tracking-tight">Connect your Discord server</h3>
@@ -369,7 +369,7 @@ function GuildAndRolePicker({
               disabled={
                 !dirty || selectedRoles.length === 0 || saveMut.isPending
               }
-              className="h-10 rounded-lg"
+              className="h-10"
             >
               {saveMut.isPending ? "Saving…" : "Save configuration"}
             </Button>

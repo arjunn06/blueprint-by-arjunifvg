@@ -18,7 +18,7 @@ function CoursesList() {
   return (
     <div>
       <header className="mb-12">
-        <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.04em] md:text-[3.4rem]">
+        <h1 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] md:text-[3.4rem]">
           Courses
         </h1>
         <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-muted-foreground">
@@ -48,9 +48,9 @@ function CoursesList() {
                 key={c.id}
                 to="/app/courses/$slug"
                 params={{ slug: c.slug }}
-                className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+                className="group block rounded-field outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
               >
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-surface-2">
+                <div className="relative aspect-[16/10] overflow-hidden rounded-field border border-border bg-surface-2">
                   {c.cover_url ? (
                     <img
                       src={c.cover_url}

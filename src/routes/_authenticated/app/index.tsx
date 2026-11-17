@@ -57,7 +57,7 @@ function Home() {
   return (
     <div className="space-y-14">
       <header>
-        <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.04em] md:text-[3.4rem]">
+        <h1 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.02em] md:text-[3.4rem]">
           {firstName ? `Welcome back, ${firstName}.` : "Welcome back."}
         </h1>
         <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-muted-foreground">
@@ -72,7 +72,7 @@ function Home() {
         <Link
           to="/app/courses/$slug"
           params={{ slug: next.slug }}
-          className="group grid overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-foreground/25 md:grid-cols-[1.15fr_1fr]"
+          className="group grid overflow-hidden rounded-field border border-border bg-surface transition-colors hover:border-foreground/25 md:grid-cols-[1.15fr_1fr]"
         >
           <div className="relative aspect-video overflow-hidden bg-surface-2 md:aspect-auto md:min-h-[300px]">
             {next.cover_url ? (
@@ -82,7 +82,7 @@ function Home() {
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               />
             ) : (
-              <div className="absolute inset-0 bg-[radial-gradient(520px_320px_at_20%_0%,hsl(214_80%_50%/0.32),transparent_70%),linear-gradient(180deg,hsl(214_24%_12%),var(--surface))]">
+              <div className="absolute inset-0 bg-[radial-gradient(520px_320px_at_20%_0%,hsl(214_80%_50%/0.18),transparent_70%),linear-gradient(180deg,var(--blue-10),var(--surface))]">
                 <LogoIcon className="absolute -bottom-6 -right-4 size-40 text-foreground/[0.06]" />
               </div>
             )}
@@ -95,7 +95,7 @@ function Home() {
           <div className="flex flex-col justify-between gap-10 p-7 md:p-9">
             <div>
               <p className="text-sm text-muted-foreground">Continue learning</p>
-              <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-[-0.03em] md:text-[1.9rem]">
+              <h2 className="mt-3 font-display text-2xl font-medium leading-tight tracking-[-0.02em] md:text-[1.9rem]">
                 {next.title}
               </h2>
               {next.summary && (
@@ -120,7 +120,7 @@ function Home() {
                 value={next.lessonCount ? (next.completedCount / next.lessonCount) * 100 : 0}
               />
               <div className="mt-6 flex items-center justify-between gap-4">
-                <span className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground">
+                <span className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-btn text-primary-foreground">
                   {next.completedCount > 0 ? "Resume" : "Start"}
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
@@ -183,7 +183,7 @@ function Home() {
       {/* Discord */}
       <section
         aria-labelledby="discord-heading"
-        className="grid items-center gap-6 rounded-2xl border border-border bg-surface p-7 md:grid-cols-[auto_1fr_auto] md:p-8"
+        className="grid items-center gap-6 rounded-field border border-border bg-surface p-7 md:grid-cols-[auto_1fr_auto] md:p-8"
       >
         <span className="grid size-14 place-items-center rounded-xl bg-[#5865F2]/15 text-[#8e99ff]">
           <DiscordIcon className="size-7" />
@@ -214,7 +214,7 @@ function Home() {
       {overview?.isSubscribed && JOURNAL_PILLS.includes(overview.pill) && (
         <section
           aria-labelledby="journal-heading"
-          className="grid items-center gap-6 rounded-2xl border border-border bg-surface p-7 md:grid-cols-[1fr_auto] md:p-8"
+          className="grid items-center gap-6 rounded-field border border-border bg-surface p-7 md:grid-cols-[1fr_auto] md:p-8"
         >
           <div>
             <h2 id="journal-heading" className="font-display text-xl font-bold tracking-tight">

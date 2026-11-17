@@ -102,11 +102,11 @@ function PromosPage() {
             placeholder="Search codes…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="h-8 w-56 text-xs bg-surface border-border rounded-lg"
+            className="h-8 w-56 text-xs bg-surface border-border"
           />
           <Button
             size="sm"
-            className="h-8 rounded-lg"
+            className="h-8"
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="size-3.5 mr-1" /> New code

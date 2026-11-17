@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyClaim, startMemberDiscordConnect } from "@/lib/discord.functions";
@@ -9,6 +9,7 @@ import { MemberHeader, StatusPill } from "@/components/app/ui-kit";
 import { Button } from "@/components/ui/button";
 import { Check, Loader2 } from "lucide-react";
 import { z } from "zod";
+import { WELCOME_RETURN_KEY } from "@/lib/intent";
 
 const searchSchema = z.object({
   discord: z.enum(["connected", "error"]).optional(),
@@ -21,8 +22,20 @@ export const Route = createFileRoute("/_authenticated/app/discord")({
   component: DiscordClaim,
 });
 
+/** True once if this Discord round trip started from the welcome flow. */
+function takeWelcomeReturn() {
+  try {
+    const hit = localStorage.getItem(WELCOME_RETURN_KEY) === "1";
+    localStorage.removeItem(WELCOME_RETURN_KEY);
+    return hit;
+  } catch {
+    return false;
+  }
+}
+
 function DiscordClaim() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const search = useSearch({ from: "/_authenticated/app/discord" });
   const getFn = useServerFn(getMyClaim);
   const startFn = useServerFn(startMemberDiscordConnect);
@@ -42,11 +55,13 @@ function DiscordClaim() {
       );
       qc.invalidateQueries({ queryKey: ["discord", "claim"] });
       window.history.replaceState({}, "", "/app/discord");
+      if (takeWelcomeReturn()) navigate({ to: "/welcome", search: { step: 2 }, replace: true });
     } else if (search.discord === "error") {
       toast.error(search.reason ?? "Could not connect Discord.");
       window.history.replaceState({}, "", "/app/discord");
+      if (takeWelcomeReturn()) navigate({ to: "/welcome", search: { step: 1 }, replace: true });
     }
-  }, [search.discord, search.reason, search.username, qc]);
+  }, [search.discord, search.reason, search.username, qc, navigate]);
 
   async function handleConnect() {
     setConnecting(true);
@@ -77,7 +92,7 @@ function DiscordClaim() {
       <div className="grid gap-5 lg:grid-cols-[1.25fr_1fr]">
         <Card className="p-7 md:p-9">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="font-display text-2xl font-extrabold tracking-[-0.03em]">
+            <h2 className="font-display text-2xl font-medium tracking-[-0.02em]">
               {isConnected ? "You're in" : "Connect your Discord"}
             </h2>
             {existing && <StatusBadge status={existing.status} />}
@@ -103,7 +118,7 @@ function DiscordClaim() {
           <Button
             onClick={handleConnect}
             disabled={connecting}
-            className="mt-8 h-12 rounded-lg bg-[#5865F2] px-6 text-[15px] font-semibold text-white hover:bg-[#4752C4] hover:opacity-100"
+            className="mt-8 h-12 bg-[#5865F2] px-6 text-btn text-white hover:bg-[#4752C4] hover:opacity-100"
           >
             {connecting ? (
               <>

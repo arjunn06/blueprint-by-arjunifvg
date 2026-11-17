@@ -21,6 +21,7 @@ import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedEnrollRouteImport } from './routes/_authenticated/enroll'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated/subscribe'
+import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as RedpillApplyRouteImport } from './routes/redpill_.apply'
@@ -112,6 +113,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
 const AuthenticatedSubscribeRoute = AuthenticatedSubscribeRouteImport.update({
   id: '/subscribe',
   path: '/subscribe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/enroll': typeof AuthenticatedEnrollRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
+  '/welcome': typeof AuthenticatedWelcomeRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/redpill/apply': typeof RedpillApplyRoute
@@ -355,6 +362,7 @@ export interface FileRoutesByTo {
   '/enroll': typeof AuthenticatedEnrollRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/subscribe': typeof AuthenticatedSubscribeRoute
+  '/welcome': typeof AuthenticatedWelcomeRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/redpill/apply': typeof RedpillApplyRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/_authenticated/enroll': typeof AuthenticatedEnrollRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
+  '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/redpill_/apply': typeof RedpillApplyRoute
@@ -449,6 +458,7 @@ export interface FileRouteTypes {
     | '/enroll'
     | '/onboarding'
     | '/subscribe'
+    | '/welcome'
     | '/auth/callback'
     | '/email/unsubscribe'
     | '/redpill/apply'
@@ -493,6 +503,7 @@ export interface FileRouteTypes {
     | '/enroll'
     | '/onboarding'
     | '/subscribe'
+    | '/welcome'
     | '/auth/callback'
     | '/email/unsubscribe'
     | '/redpill/apply'
@@ -538,6 +549,7 @@ export interface FileRouteTypes {
     | '/_authenticated/enroll'
     | '/_authenticated/onboarding'
     | '/_authenticated/subscribe'
+    | '/_authenticated/welcome'
     | '/auth/callback'
     | '/email/unsubscribe'
     | '/redpill_/apply'
@@ -681,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/subscribe'
       fullPath: '/subscribe'
       preLoaderRoute: typeof AuthenticatedSubscribeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/welcome': {
+      id: '/_authenticated/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/auth/callback': {
@@ -1007,6 +1026,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEnrollRoute: typeof AuthenticatedEnrollRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSubscribeRoute: typeof AuthenticatedSubscribeRoute
+  AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1015,6 +1035,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEnrollRoute: AuthenticatedEnrollRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSubscribeRoute: AuthenticatedSubscribeRoute,
+  AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

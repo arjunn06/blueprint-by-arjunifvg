@@ -174,11 +174,11 @@ function UsersPage() {
             placeholder="Search users"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="h-8 w-48 text-xs bg-surface border-border rounded-lg"
+            className="h-8 w-48 text-xs bg-surface border-border"
           />
           <Button
             size="sm"
-            className="h-8 rounded-lg text-xs gap-1.5"
+            className="h-8 text-xs gap-1.5"
             onClick={() => setInviteOpen(true)}
           >
             <UserPlus className="size-3.5" />

@@ -4,10 +4,21 @@ import type { ReactNode } from "react";
 import { LogoIcon } from "@/components/logo-icon";
 import { btnPrimary, container } from "./ui";
 
-/** Public pages are dark-only (page theme lock). The `dark` class re-scopes the tokens. */
-export function SiteShell({ children }: { children: ReactNode }) {
+/**
+ * Public pages are dark by default (page theme lock): the `dark` class re-scopes the tokens.
+ * The Blue Pill funnel is `theme="light"`, which re-declares the light tokens via `.light`.
+ */
+export function SiteShell({
+  children,
+  theme = "dark",
+}: {
+  children: ReactNode;
+  theme?: "dark" | "light";
+}) {
   return (
-    <div className="dark grain relative min-h-[100dvh] overflow-x-clip bg-background font-sans text-foreground">
+    <div
+      className={`${theme === "dark" ? "dark grain" : "light page-light"} relative min-h-[100dvh] overflow-x-clip bg-background font-sans text-foreground`}
+    >
       <a
         href="#main"
         className="sr-only z-[70] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
