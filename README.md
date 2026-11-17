@@ -5,6 +5,7 @@ we need to build a community site for my premium trading community customers.
 the site will be blueprint.ifvg.in
 
 when logged in people will get asked about two options:
+
 - The Red Pill
 - The Blue Pill
 
@@ -26,28 +27,27 @@ The Blue Pill, where they directly make the payment of 499 rs per month as a rec
 
 Then from the members panel of the Blue Pill, they can access their courses, claim their discord roles, watch weekly market review, schedule one free private call with me which will be synced in Google calendar.
 
-This project was built with [Lovable](https://lovable.dev).
+## Stack
 
-**Live app**: https://crystal-ball-portal.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/35d9d475-f50f-4401-8711-f4dc6d659d17).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+TanStack Start (React 19, Vite) on Cloudflare Workers, Supabase (Postgres, auth, storage, pg_cron), Razorpay for payments,
+Resend for email, Discord for member roles. Live at https://blueprint.ifvg.in.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Needs Node.js 22.18+ and npm.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
 npm i
-npm run dev
+npm run dev      # http://localhost:8080
+npm run build    # Cloudflare Worker in .output/
+npm run lint
 ```
+
+`.env` holds the public Supabase values (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`). Server secrets (the Supabase
+service-role key, Razorpay, Discord, Resend, journal) go in `.env.local`, which is git-ignored. The full list is in
+[docs/hosting.md](docs/hosting.md), which also covers deploying and the cutover from Lovable.
+
+Database changes are SQL files in `supabase/migrations/`.
 
 ## IFVG Journal access
 

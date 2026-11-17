@@ -58,7 +58,7 @@ function CoursesList() {
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-[radial-gradient(420px_260px_at_20%_0%,hsl(214_80%_50%/0.3),transparent_70%),linear-gradient(180deg,hsl(214_24%_12%),var(--surface))]">
+                    <div className="absolute inset-0 bg-[radial-gradient(420px_260px_at_20%_0%,hsl(214_80%_50%/0.18),transparent_70%),linear-gradient(180deg,var(--blue-10),var(--surface))]">
                       <LogoIcon className="absolute -bottom-6 -right-4 size-40 text-foreground/[0.06]" />
                     </div>
                   )}
@@ -77,7 +77,7 @@ function CoursesList() {
                   )}
                 </div>
                 <div className="px-1 pt-5">
-                  <h2 className="font-display text-xl font-bold leading-snug tracking-[-0.02em]">
+                  <h2 className="font-display text-xl font-medium leading-snug tracking-[-0.02em]">
                     {c.title}
                   </h2>
                   {c.summary && (

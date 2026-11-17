@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { getAccountOverview } from "@/lib/account.functions";
 import { type NavItem } from "@/components/app/sidebar";
 import { MemberShell } from "@/components/app/ui-kit";
-import { LayoutDashboard, BookOpen, NotebookPen, Settings, Shield } from "lucide-react";
+import { BookOpen, NotebookPen, Settings, Shield, Video } from "lucide-react";
 import { DiscordIcon } from "@/components/discord-icon";
 import { getIntent } from "@/lib/intent";
 import { JOURNAL_PILLS, JOURNAL_URL } from "@/lib/journal";
@@ -46,13 +46,21 @@ function AppLayout() {
 
   const isRedPill = data?.pill === "red";
 
+  // Red Pill members (not admins) only get the Discord screen, matching the redirect above.
+  const discordOnly = isRedPill && !data?.isAdmin;
   const showJournal = !!data?.isSubscribed && JOURNAL_PILLS.includes(data.pill);
 
-  const items: NavItem[] = isRedPill
-    ? [{ to: "/app/discord", label: "Discord role", icon: <DiscordIcon className="size-5" /> }]
+  const discordItem: NavItem = {
+    to: "/app/discord",
+    label: "Discord connection",
+    shortLabel: "Discord",
+    icon: <DiscordIcon className="size-5" />,
+  };
+  const items: NavItem[] = discordOnly
+    ? [discordItem]
     : [
-        { to: "/app", label: "Home", icon: <LayoutDashboard className="size-5" /> },
         { to: "/app/courses", label: "Courses", icon: <BookOpen className="size-5" /> },
+        { to: "/app/videos", label: "Videos", icon: <Video className="size-5" /> },
         ...(showJournal
           ? [
               {
@@ -63,7 +71,7 @@ function AppLayout() {
               },
             ]
           : []),
-        { to: "/app/discord", label: "Discord role", icon: <DiscordIcon className="size-5" /> },
+        discordItem,
         { to: "/app/settings", label: "Settings", icon: <Settings className="size-5" /> },
       ];
   if (data?.isAdmin) {

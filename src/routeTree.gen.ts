@@ -40,6 +40,7 @@ import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppCoursesRouteImport } from './routes/_authenticated/app/courses'
 import { Route as AuthenticatedAppDiscordRouteImport } from './routes/_authenticated/app/discord'
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app/settings'
+import { Route as AuthenticatedAppVideosRouteImport } from './routes/_authenticated/app/videos'
 import { Route as ApiPublicEnvCheckRouteImport } from './routes/api/public/env-check'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedAdminCoursesIndexRouteImport } from './routes/_authenticated/admin/courses.index'
@@ -50,10 +51,8 @@ import { Route as ApiPublicCronSubscriptionSweepRouteImport } from './routes/api
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 import { Route as ApiPublicDiscordUserCallbackRouteImport } from './routes/api/public/discord/user-callback'
 import { Route as ApiPublicWebhooksRazorpayRouteImport } from './routes/api/public/webhooks/razorpay'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 
 const IndexRoute = IndexRouteImport.update({
@@ -218,6 +217,11 @@ const AuthenticatedAppSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppVideosRoute = AuthenticatedAppVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 const ApiPublicEnvCheckRoute = ApiPublicEnvCheckRouteImport.update({
   id: '/api/public/env-check',
   path: '/api/public/env-check',
@@ -276,11 +280,6 @@ const ApiPublicWebhooksRazorpayRoute =
     path: '/api/public/webhooks/razorpay',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
   id: '/lovable/email/auth/webhook',
   path: '/lovable/email/auth/webhook',
@@ -290,12 +289,6 @@ const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
     path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailTransactionalPreviewRoute =
-  LovableEmailTransactionalPreviewRouteImport.update({
-    id: '/lovable/email/transactional/preview',
-    path: '/lovable/email/transactional/preview',
     getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailTransactionalSendRoute =
@@ -334,6 +327,7 @@ export interface FileRoutesByFullPath {
   '/app/courses': typeof AuthenticatedAppCoursesRouteWithChildren
   '/app/discord': typeof AuthenticatedAppDiscordRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/videos': typeof AuthenticatedAppVideosRoute
   '/api/public/env-check': typeof ApiPublicEnvCheckRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -344,10 +338,8 @@ export interface FileRoutesByFullPath {
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/user-callback': typeof ApiPublicDiscordUserCallbackRoute
   '/api/public/webhooks/razorpay': typeof ApiPublicWebhooksRazorpayRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
-  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/courses/': typeof AuthenticatedAdminCoursesIndexRoute
   '/app/courses/': typeof AuthenticatedAppCoursesIndexRoute
@@ -377,6 +369,7 @@ export interface FileRoutesByTo {
   '/admin/waitlist': typeof AuthenticatedAdminWaitlistRoute
   '/app/discord': typeof AuthenticatedAppDiscordRoute
   '/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/app/videos': typeof AuthenticatedAppVideosRoute
   '/api/public/env-check': typeof ApiPublicEnvCheckRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -387,10 +380,8 @@ export interface FileRoutesByTo {
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/user-callback': typeof ApiPublicDiscordUserCallbackRoute
   '/api/public/webhooks/razorpay': typeof ApiPublicWebhooksRazorpayRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
-  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/admin/courses': typeof AuthenticatedAdminCoursesIndexRoute
   '/app/courses': typeof AuthenticatedAppCoursesIndexRoute
@@ -426,6 +417,7 @@ export interface FileRoutesById {
   '/_authenticated/app/courses': typeof AuthenticatedAppCoursesRouteWithChildren
   '/_authenticated/app/discord': typeof AuthenticatedAppDiscordRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/app/videos': typeof AuthenticatedAppVideosRoute
   '/api/public/env-check': typeof ApiPublicEnvCheckRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -436,10 +428,8 @@ export interface FileRoutesById {
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/user-callback': typeof ApiPublicDiscordUserCallbackRoute
   '/api/public/webhooks/razorpay': typeof ApiPublicWebhooksRazorpayRoute
-  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
-  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/_authenticated/admin/courses/': typeof AuthenticatedAdminCoursesIndexRoute
   '/_authenticated/app/courses/': typeof AuthenticatedAppCoursesIndexRoute
@@ -475,6 +465,7 @@ export interface FileRouteTypes {
     | '/app/courses'
     | '/app/discord'
     | '/app/settings'
+    | '/app/videos'
     | '/api/public/env-check'
     | '/lovable/email/suppression'
     | '/admin/'
@@ -485,10 +476,8 @@ export interface FileRouteTypes {
     | '/api/public/discord/callback'
     | '/api/public/discord/user-callback'
     | '/api/public/webhooks/razorpay'
-    | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
-    | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/admin/courses/'
     | '/app/courses/'
@@ -518,6 +507,7 @@ export interface FileRouteTypes {
     | '/admin/waitlist'
     | '/app/discord'
     | '/app/settings'
+    | '/app/videos'
     | '/api/public/env-check'
     | '/lovable/email/suppression'
     | '/admin'
@@ -528,10 +518,8 @@ export interface FileRouteTypes {
     | '/api/public/discord/callback'
     | '/api/public/discord/user-callback'
     | '/api/public/webhooks/razorpay'
-    | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
-    | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/admin/courses'
     | '/app/courses'
@@ -566,6 +554,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/courses'
     | '/_authenticated/app/discord'
     | '/_authenticated/app/settings'
+    | '/_authenticated/app/videos'
     | '/api/public/env-check'
     | '/lovable/email/suppression'
     | '/_authenticated/admin/'
@@ -576,10 +565,8 @@ export interface FileRouteTypes {
     | '/api/public/discord/callback'
     | '/api/public/discord/user-callback'
     | '/api/public/webhooks/razorpay'
-    | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
-    | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
     | '/_authenticated/admin/courses/'
     | '/_authenticated/app/courses/'
@@ -602,10 +589,8 @@ export interface RootRouteChildren {
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordUserCallbackRoute: typeof ApiPublicDiscordUserCallbackRoute
   ApiPublicWebhooksRazorpayRoute: typeof ApiPublicWebhooksRazorpayRoute
-  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
-  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
@@ -828,6 +813,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
+    '/_authenticated/app/videos': {
+      id: '/_authenticated/app/videos'
+      path: '/videos'
+      fullPath: '/app/videos'
+      preLoaderRoute: typeof AuthenticatedAppVideosRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/api/public/env-check': {
       id: '/api/public/env-check'
       path: '/api/public/env-check'
@@ -898,13 +890,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksRazorpayRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/lovable/email/auth/webhook': {
       id: '/lovable/email/auth/webhook'
       path: '/lovable/email/auth/webhook'
@@ -917,13 +902,6 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/queue/process'
       fullPath: '/lovable/email/queue/process'
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/transactional/send': {
@@ -1005,6 +983,7 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppCoursesRoute: typeof AuthenticatedAppCoursesRouteWithChildren
   AuthenticatedAppDiscordRoute: typeof AuthenticatedAppDiscordRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppVideosRoute: typeof AuthenticatedAppVideosRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
 }
 
@@ -1012,6 +991,7 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppCoursesRoute: AuthenticatedAppCoursesRouteWithChildren,
   AuthenticatedAppDiscordRoute: AuthenticatedAppDiscordRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppVideosRoute: AuthenticatedAppVideosRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
 }
 
@@ -1068,10 +1048,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordUserCallbackRoute: ApiPublicDiscordUserCallbackRoute,
   ApiPublicWebhooksRazorpayRoute: ApiPublicWebhooksRazorpayRoute,
-  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
-  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport

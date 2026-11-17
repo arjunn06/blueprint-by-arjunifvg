@@ -22,8 +22,8 @@ export const BLUE = '#1E6BFF'
 export const RED = '#E53935'
 export const AMBER = '#FFC107'
 
-export const LOGO_URL =
-  'https://blueprint.ifvg.in/__l5e/assets-v1/b40491fd-d11d-4e81-88b1-77c53d546087/blueprint-mark.png'
+// Served from /public/email, so it travels with the site on any host.
+export const LOGO_URL = 'https://blueprint.ifvg.in/email/blueprint-mark.png'
 
 export const main = {
   backgroundColor: '#ffffff',

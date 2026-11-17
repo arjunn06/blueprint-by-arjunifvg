@@ -89,7 +89,7 @@ export function MemberShell({
         <div className="flex min-h-0 flex-col gap-5">
           <div className="flex items-center justify-between">
             <Link
-              to="/"
+              to="/app"
               aria-label="Blueprint home"
               className="grid size-10 place-items-center rounded-[14px] bg-hover transition-colors hover:bg-border/60"
             >
@@ -159,7 +159,7 @@ export function MemberShell({
       {/* Phones: slim header */}
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/85 px-5 backdrop-blur-xl sm:px-8 md:hidden">
         <Link
-          to="/"
+          to="/app"
           aria-label="Blueprint home"
           className="grid size-10 place-items-center rounded-[14px] bg-hover"
         >
@@ -195,7 +195,7 @@ export function MemberShell({
                   {item.href ? (
                     <a href={item.href} target="_blank" rel="noopener noreferrer" className={cls}>
                       <span className="grid size-5 place-items-center">{item.icon}</span>
-                      {item.label}
+                      {item.shortLabel ?? item.label}
                     </a>
                   ) : (
                     <Link
@@ -204,7 +204,7 @@ export function MemberShell({
                       className={cls}
                     >
                       <span className="grid size-5 place-items-center">{item.icon}</span>
-                      {item.label}
+                      {item.shortLabel ?? item.label}
                     </Link>
                   )}
                 </li>

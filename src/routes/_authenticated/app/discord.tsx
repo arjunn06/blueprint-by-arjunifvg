@@ -85,7 +85,7 @@ function DiscordClaim() {
   return (
     <div>
       <MemberHeader
-        title="Discord role"
+        title="Discord connection"
         description="Connect your Discord account to join the private server. Your members role is granted automatically."
       />
 

@@ -8,6 +8,8 @@ import { Menu, User } from "lucide-react";
 export type NavItem = {
   to: string;
   label: string;
+  /** Shorter label for the phone tab bar, where space is tight. */
+  shortLabel?: string;
   icon: ReactNode;
   /** Opens in a new tab instead of routing (e.g. the IFVG Journal). */
   href?: string;
