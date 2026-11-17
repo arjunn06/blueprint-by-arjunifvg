@@ -18,6 +18,8 @@ const NAMES = [
   "RESEND_API_KEY",
   "RESEND_WEBHOOK_SECRET",
   "SEND_EMAIL_HOOK_SECRET",
+  "JOURNAL_WEBHOOK_URL",
+  "JOURNAL_WEBHOOK_SECRET",
 ];
 
 export const Route = createFileRoute("/api/public/env-check")({

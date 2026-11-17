@@ -17,6 +17,7 @@ import {
 import { ArrowRight, BookOpen, Check, Play } from "lucide-react";
 import { DiscordIcon } from "@/components/discord-icon";
 import { Button } from "@/components/ui/button";
+import { JOURNAL_PILLS, JOURNAL_URL } from "@/lib/journal";
 
 export const Route = createFileRoute("/_authenticated/app/")({
   component: Home,
@@ -208,6 +209,31 @@ function Home() {
           <Link to="/app/discord">{roleActive ? "Manage" : "Connect Discord"}</Link>
         </Button>
       </section>
+
+      {/* IFVG Journal: included with the Blue and Red Pill, opened with the same email. */}
+      {overview?.isSubscribed && JOURNAL_PILLS.includes(overview.pill) && (
+        <section
+          aria-labelledby="journal-heading"
+          className="grid items-center gap-6 rounded-2xl border border-border bg-surface p-7 md:grid-cols-[1fr_auto] md:p-8"
+        >
+          <div>
+            <h2 id="journal-heading" className="font-display text-xl font-bold tracking-tight">
+              Your trading journal is included
+            </h2>
+            <p className="mt-1.5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
+              Log trades, tick your checklist and review your edge in the IFVG Journal. Sign up
+              there with{" "}
+              <span className="text-foreground">{overview.profile?.email ?? "this email"}</span> and
+              it opens straight away.
+            </p>
+          </div>
+          <Button asChild variant="outline" className="h-11 px-5">
+            <a href={JOURNAL_URL} target="_blank" rel="noopener noreferrer">
+              Open the journal
+            </a>
+          </Button>
+        </section>
+      )}
     </div>
   );
 }

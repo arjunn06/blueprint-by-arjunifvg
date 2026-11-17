@@ -69,6 +69,12 @@ export const createSubscription = createServerFn({ method: "POST" })
         { onConflict: "user_id" },
       );
 
+    // A free trial is active access from this moment, journal included.
+    if (trialEndsAt) {
+      const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+      await syncJournalAccess(userId);
+    }
+
     if (promo) {
       await recordPromoRedemption(userId, promo.id, respBody.id as string, {
         discount_type: promo.discount_type,
@@ -132,6 +138,10 @@ export const verifySubscriptionPayment = createServerFn({ method: "POST" })
       .update(patch)
       .eq("razorpay_subscription_id", data.razorpay_subscription_id)
       .eq("user_id", context.userId);
+
+    // Unlock the IFVG Journal (included with the Blue Pill) as soon as they have paid, not when the webhook lands.
+    const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+    await syncJournalAccess(context.userId);
     return { ok: true };
   });
 
@@ -191,6 +201,8 @@ export const reconcileSubscription = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.from("subscriptions").update(patch).eq("user_id", userId);
       changed = true;
+      const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+      await syncJournalAccess(userId);
     }
     return { status: newStatus, changed };
   });

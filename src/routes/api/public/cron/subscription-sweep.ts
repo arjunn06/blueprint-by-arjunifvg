@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import type { SweepRow } from "@/lib/journal-sync.server";
 
 /**
  * Entitlement sweep (cron, hourly).
@@ -30,6 +31,11 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
             : null;
 
         const result = { reconciled: 0, expired: 0, rolesRevoked: 0, errors: [] as string[] };
+
+        // The IFVG Journal comes with the Blue Pill. Each member's final state below is sent to it in one
+        // batch after the loop, which also repairs any push that failed earlier.
+        const readAt = new Date();
+        const journalRows: SweepRow[] = [];
 
         const { data: subs } = await supabaseAdmin
           .from("subscriptions")
@@ -109,6 +115,15 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
             }
 
 
+            journalRows.push({
+              user_id: sub.user_id,
+              pill: sub.pill,
+              status,
+              current_period_end: periodEnd,
+              razorpay_subscription_id: sub.razorpay_subscription_id,
+              entitled: isEntitled({ status, current_period_end: periodEnd }),
+            });
+
             // 3. Strip Discord roles when access is gone.
             if (!isEntitled({ status, current_period_end: periodEnd })) {
               const { data: claims } = await supabaseAdmin
@@ -139,8 +154,12 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
           }
         }
 
-        console.log("subscription-sweep", result);
-        return Response.json(result);
+        // Never let the journal being down fail the sweep: the summary is reported, not thrown.
+        const { syncJournalFromSweep } = await import("@/lib/journal-sync.server");
+        const journal = await syncJournalFromSweep(journalRows, readAt);
+
+        console.log("subscription-sweep", result, "journal", journal);
+        return Response.json({ ...result, journal });
       },
     },
   },

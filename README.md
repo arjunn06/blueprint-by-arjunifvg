@@ -48,3 +48,24 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## IFVG Journal access
+
+The IFVG Journal (journal.ifvg.in, a separate app on its own Supabase project) is included with the Blue Pill and the Red Pill. This site is
+the source of truth for who is a member, so it tells the journal whenever that changes. `src/lib/journal-sync.server.ts`
+sends a signed grant or revoke to the journal's `bluepill-webhook` function, using the same `isEntitled` rule as the library:
+
+- right after a payment, a Razorpay webhook, a trial or an admin change (the Razorpay webhook for both pills,
+  `verifySubscriptionPayment`, `reconcileSubscription`, `verifyRedPillPayment`, `reconcileRedPillOrder`, and the admin
+  grant/terminate/delete actions), and
+- every hour from the subscription sweep, which re-sends every member in one batch so a missed push repairs itself.
+
+The journal matches the member by email, so they sign up there with the same address. The "subscription started" email and the
+members panel both say so.
+
+- Host secrets: `JOURNAL_WEBHOOK_URL` and `JOURNAL_WEBHOOK_SECRET`. With either unset nothing is sent. `/api/public/env-check`
+  shows whether the site can see them.
+- `JOURNAL_PILLS` in `src/lib/journal.ts` decides which memberships include the journal: the Blue and the Red Pill. The Red Pill
+  is one payment for 31 days of access, so its journal access ends with it, like the library.
+- Test: `node --test tests/journal-sync.test.ts` (Node 22.18+).
+- The journal's side, secrets and troubleshooting are in `docs/bluepill-webhook.md` in the journal repo.

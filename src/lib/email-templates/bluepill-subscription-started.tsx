@@ -1,16 +1,18 @@
 import * as React from 'react'
-import { Button, Section, Text } from '@react-email/components'
+import { Button, Link, Section, Text } from '@react-email/components'
 import {
   EmailShell,
   Heading,
   button,
   h1,
   infoBox,
+  link,
   rowLabel,
   rowValue,
   strong,
   text,
 } from './_shell'
+import { JOURNAL_URL } from '../journal'
 import type { TemplateEntry } from './registry'
 
 interface Props {
@@ -48,6 +50,14 @@ const BluePillSubscriptionStarted = ({ name, amount, nextChargeDate, appUrl }: P
       <strong style={strong}>Next step:</strong> claim your Discord role from the dashboard so you
       get session links and trade breakdowns as they're posted. Cancel anytime from Settings — no
       lock-in.
+    </Text>
+
+    <Text style={{ ...text, margin: '16px 0 0' }}>
+      <strong style={strong}>Your trading journal is included:</strong> sign up at{' '}
+      <Link href={JOURNAL_URL} style={link}>
+        journal.ifvg.in
+      </Link>{' '}
+      with this same email address and it opens straight away.
     </Text>
   </EmailShell>
 )

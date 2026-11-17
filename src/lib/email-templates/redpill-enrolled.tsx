@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Section, Text } from '@react-email/components'
+import { Button, Link, Section, Text } from '@react-email/components'
 import {
   EmailShell,
   Heading,
@@ -7,12 +7,14 @@ import {
   buttonWith,
   footnote,
   h1,
+  link,
   stepBox,
   stepText,
   stepTitle,
   strong,
   text,
 } from './_shell'
+import { JOURNAL_URL } from '../journal'
 import type { TemplateEntry } from './registry'
 
 interface RedPillEnrolledProps {
@@ -50,6 +52,15 @@ const RedPillEnrolled = ({ name, claimUrl }: RedPillEnrolledProps) => (
       <strong style={strong}>When do classes start?</strong> The cohort begins once all slots are
       filled. We'll announce the start date and session times in Discord, so claim your role before
       then.
+    </Text>
+
+    <Text style={text}>
+      <strong style={strong}>Your trading journal is included while your access is active:</strong>{' '}
+      sign up at{' '}
+      <Link href={JOURNAL_URL} style={link}>
+        journal.ifvg.in
+      </Link>{' '}
+      with this same email address and it opens straight away.
     </Text>
 
     <Text style={footnote}>Questions? Reply to this email and we'll get back to you.</Text>

@@ -127,6 +127,9 @@ export const verifyRedPillPayment = createServerFn({ method: "POST" })
         { onConflict: "user_id" },
       );
     }
+    // The IFVG Journal comes with the Red Pill too: open it as soon as they have paid.
+    const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+    await syncJournalAccess(context.userId);
     return { ok: true, currentPeriodEnd: endsAt };
   });
 
@@ -167,5 +170,7 @@ export const reconcileRedPillOrder = createServerFn({ method: "POST" })
       .from("subscriptions")
       .update({ status: "active", current_period_end: endsAt })
       .eq("user_id", userId);
+    const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+    await syncJournalAccess(userId);
     return { status: "active", changed: true, pill: "red" };
   });

@@ -92,6 +92,13 @@ export const Route = createFileRoute("/api/public/webhooks/razorpay")({
                 { onConflict: "user_id" },
               );
             }
+
+            // The IFVG Journal comes with the Red Pill too (same 3s limit as below: Razorpay is waiting).
+            const redUserId = updated?.[0]?.user_id ?? noteUser;
+            if (redUserId) {
+              const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+              await syncJournalAccess(redUserId, 3000);
+            }
           } catch (err) {
             console.error("Razorpay webhook (red pill order) error", event, err);
             return new Response("Handler error", { status: 500 });
@@ -248,6 +255,15 @@ export const Route = createFileRoute("/api/public/webhooks/razorpay")({
               },
               { onConflict: "user_id" },
             );
+          }
+
+          // The IFVG Journal comes with the Blue Pill: tell it where this member
+          // stands now. Never throws, and gives up after 3s because Razorpay is
+          // waiting on this response; the hourly sweep repairs a missed push.
+          const journalUserId = existingRow?.user_id ?? updated?.[0]?.user_id ?? userIdFromNotes;
+          if (journalUserId) {
+            const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+            await syncJournalAccess(journalUserId, 3000);
           }
 
           // Cancellation stops renewal, but the member keeps access through

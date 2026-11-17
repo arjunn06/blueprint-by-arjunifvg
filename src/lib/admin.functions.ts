@@ -318,6 +318,9 @@ export const adminTerminateSubscription = createServerFn({ method: "POST" })
       .from("subscriptions")
       .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
       .eq("user_id", data.user_id);
+    // The journal follows the same entitlement rule as the library (see journal-sync.server.ts).
+    const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+    await syncJournalAccess(data.user_id);
     await logAudit(context, {
       action: "subscription.terminate",
       target_user_id: data.user_id,
@@ -411,6 +414,9 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     if (error) throw new Error(error.message);
+    // Their membership row is gone, so the journal would otherwise keep access until the last paid date.
+    const { revokeJournalAccess } = await import("@/lib/journal-sync.server");
+    await revokeJournalAccess(targetProfile?.email);
     await logAudit(context, {
       action: "user.delete",
       target_user_id: data.user_id,
@@ -542,6 +548,10 @@ export const adminInviteTrialUser = createServerFn({ method: "POST" })
         { onConflict: "user_id" },
       );
     if (subErr) throw new Error(subErr.message);
+
+    // A trial includes the journal, like any active membership.
+    const { syncJournalAccess } = await import("@/lib/journal-sync.server");
+    await syncJournalAccess(userId);
 
     await logAudit(context, {
       action: invited ? "user.invite_trial" : "trial.grant",
