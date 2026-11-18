@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as ApplyRouteImport } from './routes/apply'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BluepillRouteImport } from './routes/bluepill'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RedpillRouteImport } from './routes/redpill'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/app/route'
@@ -80,9 +82,19 @@ const BluepillRoute = BluepillRouteImport.update({
   path: '/bluepill',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RedpillRoute = RedpillRouteImport.update({
   id: '/redpill',
   path: '/redpill',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -310,7 +322,9 @@ export interface FileRoutesByFullPath {
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRouteWithChildren
   '/bluepill': typeof BluepillRoute
+  '/privacy': typeof PrivacyRoute
   '/redpill': typeof RedpillRoute
+  '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/app': typeof AuthenticatedAppRouteRouteWithChildren
@@ -357,7 +371,9 @@ export interface FileRoutesByTo {
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRouteWithChildren
   '/bluepill': typeof BluepillRoute
+  '/privacy': typeof PrivacyRoute
   '/redpill': typeof RedpillRoute
+  '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/enroll': typeof AuthenticatedEnrollRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -402,7 +418,9 @@ export interface FileRoutesById {
   '/apply': typeof ApplyRoute
   '/auth': typeof AuthRouteWithChildren
   '/bluepill': typeof BluepillRoute
+  '/privacy': typeof PrivacyRoute
   '/redpill': typeof RedpillRoute
+  '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRouteRouteWithChildren
@@ -451,7 +469,9 @@ export interface FileRouteTypes {
     | '/apply'
     | '/auth'
     | '/bluepill'
+    | '/privacy'
     | '/redpill'
+    | '/terms'
     | '/unsubscribe'
     | '/admin'
     | '/app'
@@ -498,7 +518,9 @@ export interface FileRouteTypes {
     | '/apply'
     | '/auth'
     | '/bluepill'
+    | '/privacy'
     | '/redpill'
+    | '/terms'
     | '/unsubscribe'
     | '/enroll'
     | '/onboarding'
@@ -542,7 +564,9 @@ export interface FileRouteTypes {
     | '/apply'
     | '/auth'
     | '/bluepill'
+    | '/privacy'
     | '/redpill'
+    | '/terms'
     | '/unsubscribe'
     | '/_authenticated/admin'
     | '/_authenticated/app'
@@ -591,7 +615,9 @@ export interface RootRouteChildren {
   ApplyRoute: typeof ApplyRoute
   AuthRoute: typeof AuthRouteWithChildren
   BluepillRoute: typeof BluepillRoute
+  PrivacyRoute: typeof PrivacyRoute
   RedpillRoute: typeof RedpillRoute
+  TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   RedpillApplyRoute: typeof RedpillApplyRoute
@@ -645,11 +671,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BluepillRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/redpill': {
       id: '/redpill'
       path: '/redpill'
       fullPath: '/redpill'
       preLoaderRoute: typeof RedpillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unsubscribe': {
@@ -1058,7 +1098,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApplyRoute: ApplyRoute,
   AuthRoute: AuthRouteWithChildren,
   BluepillRoute: BluepillRoute,
+  PrivacyRoute: PrivacyRoute,
   RedpillRoute: RedpillRoute,
+  TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   RedpillApplyRoute: RedpillApplyRoute,
