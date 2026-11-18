@@ -20,6 +20,17 @@ import { createHmac } from "crypto";
 // Explicit extension: the tests load this file straight in Node, which does not guess it.
 import { JOURNAL_PILLS } from "./journal.ts";
 
+/** An error as text. Supabase and fetch failures are not always `Error` instances; String() would give "[object Object]". */
+export function describeError(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
 /** The journal accepts at most this many calls in one request. */
 export const JOURNAL_MAX_BATCH = 500;
 
@@ -130,7 +141,7 @@ export async function syncJournalAccess(userId: string, timeoutMs = 4000): Promi
     if (!call) return;
     report(`${call.action} ${userId}`, await pushToJournal(call, timeoutMs));
   } catch (err) {
-    console.error("Journal sync error", userId, err);
+    console.error("Journal sync error", userId, describeError(err));
   }
 }
 
@@ -144,7 +155,7 @@ export async function revokeJournalAccess(
     if (!call) return;
     report("revoke (deleted account)", await pushToJournal(call, timeoutMs));
   } catch (err) {
-    console.error("Journal revoke error", err);
+    console.error("Journal revoke error", describeError(err));
   }
 }
 
@@ -201,7 +212,7 @@ export async function syncJournalFromSweep(rows: SweepRow[], readAt: Date): Prom
       } else summary.errors.push(`${r.status ?? "network"}: ${r.error}`);
     }
   } catch (err) {
-    summary.errors.push(err instanceof Error ? err.message : String(err));
+    summary.errors.push(describeError(err));
   }
   if (summary.errors.length) console.error("Journal sweep sync", summary);
   return summary;
