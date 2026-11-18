@@ -70,8 +70,6 @@ export const RP: RpConfig = {
   weeksVariant: "default",
   noteVoice: "third",
   taxLine: TAX_LINE,
-  /** Matches section 6 of the Terms of Service (src/routes/terms.tsx). Change both together. */
-  refundLine: "We decide each request case by case, and always fix genuine billing errors.",
   bluePillLink: false,
 };
 
@@ -226,13 +224,7 @@ export function buildFaq(c: RpConfig): FaqEntry[] {
   ];
   if (c.faqMissedSession)
     items.push({ id: "missed", q: "What if I miss a live session?", a: c.faqMissedSession });
-  if (c.refundLine)
-    items.push({
-      id: "refund",
-      q: "What is the refund policy?",
-      a: c.refundLine,
-      links: [{ label: "Read the Terms of Service", href: "/terms#refunds" }],
-    });
+  if (c.refundLine) items.push({ id: "refund", q: "What is the refund policy?", a: c.refundLine });
   if (c.faqAffiliate)
     items.push({
       id: "affiliate",

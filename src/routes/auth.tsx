@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FlowBody, FlowField, FlowHeading, FlowOtp, FlowShell } from "@/components/site/flow-kit";
@@ -170,16 +170,7 @@ function AuthPage() {
             )}
           </button>
           <p className="text-center text-hint text-tertiary">
-            No password. We email you a one-time code, and signing in creates your account. By
-            continuing you agree to our{" "}
-            <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
-              Privacy Policy
-            </Link>
-            .
+            No password. We email you a one-time code, and signing in creates your account.
           </p>
         </FlowBody>
       ) : (

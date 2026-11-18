@@ -326,18 +326,7 @@ function ApplyPage() {
                   )}
                 </button>
                 <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Your details will be securely reviewed by our team. See our{" "}
-                  <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link
-                    to="/privacy"
-                    className="underline underline-offset-2 hover:text-foreground"
-                  >
-                    Privacy Policy
-                  </Link>
-                  .
+                  Your details will be securely reviewed by our team
                 </p>
               </div>
             </form>

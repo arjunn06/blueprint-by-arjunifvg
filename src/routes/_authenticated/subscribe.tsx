@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -372,11 +372,7 @@ function Subscribe() {
         <p className="text-center text-hint text-tertiary">
           {formatRupees(BLUE_PILL_BASE_PAISE)} + {formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST
           (18%) = {formatRupees(BLUE_PILL_TOTAL_PAISE)} a month, billed through Razorpay. Cancel
-          anytime from Settings. By paying you agree to our{" "}
-          <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
-            Terms of Service
-          </Link>
-          .
+          anytime from Settings.
         </p>
       </FlowBody>
 
