@@ -118,28 +118,37 @@ export function Join() {
                   </span>
                 </p>
 
-                {RP.refundLine ? (
-                  <p>Refunds: {RP.refundLine}</p>
-                ) : (
+                {RP.refundLine && (
                   <p>
-                    Try before you pay:{" "}
+                    Refunds: {RP.refundLine}{" "}
                     <a
-                      href="#walkthrough"
+                      href="/terms#refunds"
                       className="text-[var(--ink-1)] underline underline-offset-4"
                     >
-                      watch the walkthrough
-                    </a>
-                    ,{" "}
-                    <a href="#modules" className="text-[var(--ink-1)] underline underline-offset-4">
-                      read the nine modules
-                    </a>
-                    , and{" "}
-                    <a href="#tobi" className="text-[var(--ink-1)] underline underline-offset-4">
-                      read what members wrote
+                      Read the terms
                     </a>
                     .
                   </p>
                 )}
+
+                <p>
+                  Try before you pay:{" "}
+                  <a
+                    href="#walkthrough"
+                    className="text-[var(--ink-1)] underline underline-offset-4"
+                  >
+                    watch the walkthrough
+                  </a>
+                  ,{" "}
+                  <a href="#modules" className="text-[var(--ink-1)] underline underline-offset-4">
+                    read the nine modules
+                  </a>
+                  , and{" "}
+                  <a href="#tobi" className="text-[var(--ink-1)] underline underline-offset-4">
+                    read what members wrote
+                  </a>
+                  .
+                </p>
 
                 {RP.supportContact && (
                   <p>Paid but no access? Write to {RP.supportContact} with your payment ID.</p>

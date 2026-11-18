@@ -74,7 +74,7 @@ export function SiteNav({ cta }: { cta?: ReactNode | false }) {
 export function SiteFooter() {
   return (
     <footer className="border-t border-border">
-      <div className={`${container} grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]`}>
+      <div className={`${container} grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr]`}>
         <div>
           <div className="flex items-center gap-2.5">
             <LogoIcon className="size-8 text-primary" />
@@ -107,6 +107,21 @@ export function SiteFooter() {
             <li>
               <Link to="/auth" className="transition-colors hover:text-foreground">
                 Sign in
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="text-sm font-semibold">Legal</p>
+          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+            <li>
+              <Link to="/terms" className="transition-colors hover:text-foreground">
+                Terms of Service
+              </Link>
+            </li>
+            <li>
+              <Link to="/privacy" className="transition-colors hover:text-foreground">
+                Privacy Policy
               </Link>
             </li>
           </ul>
