@@ -77,7 +77,9 @@ export default defineConfig(({ command, mode }): UserConfig => {
                 deployConfig: true,
                 // The Worker's name: it is also the `*.workers.dev` hostname and what Cloudflare's
                 // Git integration matches, so keep it stable.
-                wrangler: { name: "blueprint-ifvg" },
+                // `keep_vars` stops a deploy from wiping variables set in the dashboard: the generated
+                // config declares none, so without it every deploy would delete them.
+                wrangler: { name: "crystal-ball-portal", keep_vars: true },
               },
             }),
           ]

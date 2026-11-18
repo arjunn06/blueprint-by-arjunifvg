@@ -1,7 +1,7 @@
 # Hosting: Cloudflare Workers
 
 The site is a TanStack Start app. `npm run build` produces a Cloudflare Worker (Nitro `cloudflare-module`, configured in
-`vite.config.ts`). The Worker is named `blueprint-ifvg`. Supabase (database, auth, storage, the hourly and email-queue
+`vite.config.ts`). The Worker is named `crystal-ball-portal`: it is the existing Worker that serves the site, and the name in `vite.config.ts` must match it or `wrangler deploy` creates a second Worker instead of updating this one. Supabase (database, auth, storage, the hourly and email-queue
 cron jobs) is separate and does not move with the host.
 
 ```text
@@ -36,6 +36,10 @@ set them as build variables in Cloudflare instead, or the build will not have th
 | `RESEND_WEBHOOK_SECRET`                                           | Verifies bounce/complaint webhooks                             | The secret on the Resend webhook           |
 | `SEND_EMAIL_HOOK_SECRET`                                          | Verifies Supabase's Send Email hook                            | Supabase > Auth > Hooks                    |
 | `JOURNAL_WEBHOOK_URL`, `JOURNAL_WEBHOOK_SECRET`                   | Grants/revokes journal access (see the README)                 | The journal's Supabase project             |
+
+Add them as type **Secret**. The generated Wrangler config declares no variables, so the dashboard shows "Update your
+Wrangler configuration with these changes to keep deployments in sync". That is safe to ignore: `keep_vars: true` in
+`vite.config.ts` makes every deploy keep dashboard variables, and secrets are never touched by a deploy.
 
 Lovable may not let you read stored secrets back. If so, regenerate at the source. Webhook secrets are values you choose, so
 set a new one on the provider and the same one on the Worker. After deploying, `GET /api/public/env-check` reports

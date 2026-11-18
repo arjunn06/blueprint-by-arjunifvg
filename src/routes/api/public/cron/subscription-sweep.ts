@@ -1,6 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type { SweepRow } from "@/lib/journal-sync.server";
 
+/** Run `fn` over `items` with at most `limit` in flight. `fn` must not throw. */
+async function runPool<T>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) await fn(items[next++]);
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+}
+
+/** Razorpay is called once per live subscription: bound the wait and the parallelism so the sweep stays fast. */
+const RAZORPAY_TIMEOUT_MS = 10_000;
+const SWEEP_CONCURRENCY = 8;
+
 /**
  * Entitlement sweep (cron, hourly).
  *
@@ -15,7 +32,7 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const serviceKey = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+        const serviceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
         const auth = request.headers.get("authorization") ?? "";
         if (!serviceKey || auth !== `Bearer ${serviceKey}`) {
           return new Response("Unauthorized", { status: 401 });
@@ -23,12 +40,10 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { isEntitled } = await import("@/lib/membership.server");
-        const keyId = process.env['RAZORPAY_KEY_ID'];
-        const secret = process.env['RAZORPAY_KEY_SECRET'];
+        const keyId = process.env["RAZORPAY_KEY_ID"];
+        const secret = process.env["RAZORPAY_KEY_SECRET"];
         const rzpAuth =
-          keyId && secret
-            ? "Basic " + Buffer.from(`${keyId}:${secret}`).toString("base64")
-            : null;
+          keyId && secret ? "Basic " + Buffer.from(`${keyId}:${secret}`).toString("base64") : null;
 
         const result = { reconciled: 0, expired: 0, rolesRevoked: 0, errors: [] as string[] };
 
@@ -41,14 +56,13 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
           .from("subscriptions")
           .select("user_id, status, pill, current_period_end, razorpay_subscription_id");
 
-        for (const sub of subs ?? []) {
+        const processSub = async (sub: NonNullable<typeof subs>[number]) => {
           try {
             let status: string = sub.status;
             let periodEnd: string | null = sub.current_period_end;
 
-            const { paidThroughFromRemote, latestPeriodEnd } = await import(
-              "@/lib/razorpay.server"
-            );
+            const { paidThroughFromRemote, latestPeriodEnd } =
+              await import("@/lib/razorpay.server");
 
             // 1. Reconcile recurring (Blue Pill) subscriptions with Razorpay.
             if (
@@ -56,11 +70,15 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
               sub.razorpay_subscription_id?.startsWith("sub_") &&
               status !== "expired"
             ) {
+              // A Razorpay hiccup must not drop this member from the journal sync: carry on with local state.
               const res = await fetch(
                 `https://api.razorpay.com/v1/subscriptions/${sub.razorpay_subscription_id}`,
-                { headers: { Authorization: rzpAuth } },
-              );
-              if (res.ok) {
+                {
+                  headers: { Authorization: rzpAuth },
+                  signal: AbortSignal.timeout(RAZORPAY_TIMEOUT_MS),
+                },
+              ).catch(() => null);
+              if (res?.ok) {
                 const remote = (await res.json()) as {
                   status?: string;
                   current_end?: number;
@@ -114,7 +132,6 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
               result.expired += 1;
             }
 
-
             journalRows.push({
               user_id: sub.user_id,
               pill: sub.pill,
@@ -152,7 +169,9 @@ export const Route = createFileRoute("/api/public/cron/subscription-sweep")({
               `${sub.user_id}: ${err instanceof Error ? err.message : String(err)}`,
             );
           }
-        }
+        };
+
+        await runPool(subs ?? [], SWEEP_CONCURRENCY, processSub);
 
         // Never let the journal being down fail the sweep: the summary is reported, not thrown.
         const { syncJournalFromSweep } = await import("@/lib/journal-sync.server");
