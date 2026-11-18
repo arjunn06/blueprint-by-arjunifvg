@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Custom Checkout x Subscriptions spike</title>
+  <style>
+    :root { color-scheme: light dark; --line: #8884; --muted: #888; --accent: #3f7bea; }
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 1.3rem; margin: 0 0 4px; }
+    h2 { font-size: 1rem; margin: 0 0 8px; }
+    section { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .tag { font-size: .7rem; background: #d9423c; color: #fff; padding: 2px 8px; border-radius: 99px; vertical-align: middle; }
+    .muted { color: var(--muted); margin: 4px 0; }
+    label { display: block; font-size: .8rem; color: var(--muted); }
+    input { width: 100%; box-sizing: border-box; padding: 8px; margin: 2px 0 8px; font: inherit; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+    button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 0; background: var(--accent); color: #fff; cursor: pointer; }
+    button.ghost { background: transparent; color: inherit; border: 1px solid var(--line); }
+    pre { background: #8881; border-radius: 8px; padding: 10px; overflow: auto; font-size: .8rem; margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; }
+    #log { max-height: 320px; }
+    code { background: #8881; padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Custom Checkout &times; Subscriptions <span class="tag">TEST MODE</span></h1>
+  <p class="muted">
+    Can <code>razorpay.createPayment()</code> (razorpay.js, your own form) authorise a Razorpay
+    <em>Subscription</em>? Use Razorpay's published test card only.
+  </p>
+
+  <section>
+    <h2>0 &middot; Account</h2>
+    <p id="cfg" class="muted">Loading&hellip;</p>
+    <p id="methods" class="muted"></p>
+  </section>
+
+  <section>
+    <h2>1 &middot; Create a test subscription</h2>
+    <p class="muted">
+      Done before the pay click on purpose: the docs say <code>createPayment</code> has to run inside the user's
+      click for the popup to open, so it cannot wait on a network call.
+    </p>
+    <button id="create">Create subscription</button>
+    <p id="subInfo" class="muted"></p>
+  </section>
+
+  <section>
+    <h2>2a &middot; Card through createPayment</h2>
+    <label for="cardNumber">Card number (Razorpay test Visa, any future expiry, any CVV)</label>
+    <input id="cardNumber" value="4718 6091 0820 4366" autocomplete="off" />
+    <div class="row">
+      <div><label for="exp">Expiry (MM/YY)</label><input id="exp" value="12/30" autocomplete="off" /></div>
+      <div><label for="cvv">CVV</label><input id="cvv" value="123" autocomplete="off" /></div>
+    </div>
+    <label for="cardName">Name on card</label>
+    <input id="cardName" value="Test User" autocomplete="off" />
+    <div class="row">
+      <div><label for="email">Email</label><input id="email" value="test@example.com" autocomplete="off" /></div>
+      <div><label for="contact">Phone</label><input id="contact" value="9999999999" autocomplete="off" /></div>
+    </div>
+    <button id="payCard">Pay with card</button>
+    <p class="muted">
+      This is the <code>handler</code> variant: authentication opens in a popup window and the result arrives
+      as a <code>payment.success</code> event.
+    </p>
+  </section>
+
+  <section>
+    <h2>2c &middot; Card through createPayment with callback_url</h2>
+    <p class="muted">
+      The redirect variant: same card form as 2a, but the whole tab is sent to Razorpay's test
+      authentication page and then POSTed back to <code>/callback</code>.
+    </p>
+    <button id="payCardRedirect">Pay with card (redirect)</button>
+  </section>
+
+  <section>
+    <h2>2b &middot; UPI through createPayment</h2>
+    <p class="muted">
+      Razorpay says UPI Collect (a VPA) is deprecated since 28 Feb 2026, so a failure here is itself a finding.
+      The docs I found don't describe UPI Intent or AutoPay for subscriptions through Custom Checkout.
+    </p>
+    <label for="vpa">UPI ID</label>
+    <input id="vpa" value="success@razorpay" autocomplete="off" />
+    <button id="payUpi">Pay with UPI ID</button>
+  </section>
+
+  <section>
+    <h2>3 &middot; Result</h2>
+    <button id="status" class="ghost">Check subscription status</button>
+    <pre id="result">Nothing yet.</pre>
+  </section>
+
+  <section>
+    <h2>Event log</h2>
+    <p class="muted">Records popups and page unloads, to answer "does the customer leave the page?".</p>
+    <button id="clear" class="ghost">Clear log</button>
+    <pre id="log"></pre>
+  </section>
+
+  <p><a href="/standard">Control: the same subscription through Standard Checkout &rarr;</a></p>
+
+  <script src="/common.js"></script>
+  <script>
+    const state = { sub: null, razorpay: null, redirectRazorpay: null, keyId: null };
+    instrument();
+    paintLog();
+
+    function onSuccess(resp) {
+      log("payment.success", "handler fired", { payment: resp.razorpay_payment_id, subscription: resp.razorpay_subscription_id });
+      if (!state.sub) return log("warn", "no subscription in memory (page reloaded?), use Check status");
+      verifyPayment(state.sub.subscriptionId, resp)
+        .then((r) => show("result", r))
+        .catch((e) => { log("verify-failed", e.message); show("result", { error: e.message, detail: e.detail }); });
+    }
+
+    function onError(resp) {
+      log("payment.error", resp?.error?.description ?? "unknown error", pickError(resp?.error));
+      show("result", { paymentError: pickError(resp?.error) });
+    }
+
+    function methodSummary(m) {
+      const keys = ["card", "upi", "netbanking", "wallet", "emi", "cardless_emi", "paylater"];
+      const on = (v) => (v && typeof v === "object" ? Object.keys(v).length > 0 : Boolean(v));
+      return keys.map((k) => `${k}=${on(m?.[k]) ? "yes" : "no"}`).join("  ");
+    }
+
+    (async () => {
+      try {
+        const cfg = await api("/config");
+        $("cfg").textContent = `Key ${cfg.keyId} · plan ${cfg.planConfigured ? "from .env.local" : "auto-created on first use"}`;
+        await loadScript("https://checkout.razorpay.com/v1/razorpay.js");
+        state.keyId = cfg.keyId;
+        state.razorpay = new Razorpay({ key: cfg.keyId });
+        // A separate instance for the redirect variant, built up front so the click stays synchronous.
+        state.redirectRazorpay = new Razorpay({ key: cfg.keyId, redirect: true });
+        state.razorpay.once("ready", (r) => {
+          // `ready` can fire with no payload (e.g. the key was rejected), so don't assume `methods` exists.
+          if (!r?.methods) return log("ready", "fired without a methods list (key rejected or lookup failed)");
+          $("methods").textContent = "Enabled on this account (not subscription-specific): " + methodSummary(r.methods);
+          log("ready", methodSummary(r.methods));
+        });
+        state.razorpay.on("payment.success", onSuccess);
+        state.razorpay.on("payment.error", onError);
+        log("init", "razorpay.js loaded");
+      } catch (e) {
+        log("init-failed", e.message);
+      }
+    })();
+
+    $("create").addEventListener("click", async () => {
+      try {
+        state.sub = await createSubscription();
+        $("subInfo").textContent = `${state.sub.subscriptionId} · ${state.sub.status} · ₹${(state.sub.amount / 100).toFixed(2)}/month`;
+      } catch (e) {
+        log("create-failed", e.message, e.detail);
+        $("subInfo").textContent = e.message;
+      }
+    });
+
+    // createPayment is called synchronously inside the click handler (no await before it).
+    function pay(extra, label, instance = state.razorpay) {
+      if (!state.sub) return log("warn", "Create the subscription first (step 1).");
+      if (!instance) return log("warn", "razorpay.js is not ready.");
+      const data = {
+        amount: state.sub.amount,
+        currency: state.sub.currency,
+        email: $("email").value.trim(),
+        contact: $("contact").value.trim(),
+        subscription_id: state.sub.subscriptionId,
+        ...extra,
+      };
+      log("createPayment", `${label} subscription_id=${data.subscription_id} amount=${data.amount}`);
+      instance.createPayment(data);
+    }
+
+    function cardData() {
+      const [mm = "", yy = ""] = $("exp").value.split("/").map((s) => s.trim());
+      return {
+        method: "card",
+        // Values are sent as strings; the docs show numbers, which Razorpay form-encodes the same way.
+        card: {
+          number: $("cardNumber").value.replace(/\s+/g, ""),
+          name: $("cardName").value.trim(),
+          expiry_month: mm,
+          expiry_year: yy.slice(-2),
+          cvv: $("cvv").value.trim(),
+        },
+      };
+    }
+
+    $("payCard").addEventListener("click", () => pay(cardData(), "method=card (handler)"));
+
+    $("payCardRedirect").addEventListener("click", () =>
+      pay(
+        { ...cardData(), callback_url: location.origin + "/callback" },
+        "method=card (callback_url)",
+        state.redirectRazorpay,
+      ),
+    );
+
+    $("payUpi").addEventListener("click", () => pay({ method: "upi", vpa: $("vpa").value.trim() }, "method=upi (collect)"));
+
+    $("status").addEventListener("click", async () => {
+      if (!state.sub) return log("warn", "No subscription in memory. Create one first.");
+      try {
+        const s = await api("/api/status", { subscriptionId: state.sub.subscriptionId });
+        log("status", `${s.id} ${s.status}`);
+        show("result", s);
+      } catch (e) {
+        log("status-failed", e.message);
+      }
+    });
+
+    $("clear").addEventListener("click", () => { lines.length = 0; writeStored(LOG_KEY, "[]"); paintLog(); });
+  </script>
+</body>
+</html>

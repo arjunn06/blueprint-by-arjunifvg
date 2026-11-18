@@ -2,11 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { findValidInvite } from "./redpill-invite.server";
-import { RED_PILL_BASE_PAISE, RED_PILL_TOTAL_PAISE, gstOn } from "./pricing";
+import { RED_PILL_ACCESS_DAYS, RED_PILL_BASE_PAISE, RED_PILL_TOTAL_PAISE, gstOn } from "./pricing";
 
 /** The Red Pill is a one-time ₹2,999 + 18% GST enrolment (one month, live). */
 export const RED_PILL_AMOUNT_PAISE = RED_PILL_TOTAL_PAISE;
-const ACCESS_DAYS = 31;
+const ACCESS_DAYS = RED_PILL_ACCESS_DAYS;
 /** Registrations are open to everyone. */
 const REGISTRATIONS_OPEN = true;
 

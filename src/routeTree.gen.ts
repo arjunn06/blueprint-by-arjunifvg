@@ -50,6 +50,7 @@ import { Route as AuthenticatedAppCoursesSlugRouteImport } from './routes/_authe
 import { Route as ApiPublicCronSubscriptionSweepRouteImport } from './routes/api/public/cron/subscription-sweep'
 import { Route as ApiPublicDiscordCallbackRouteImport } from './routes/api/public/discord/callback'
 import { Route as ApiPublicDiscordUserCallbackRouteImport } from './routes/api/public/discord/user-callback'
+import { Route as ApiPublicRazorpayCallbackRouteImport } from './routes/api/public/razorpay/callback'
 import { Route as ApiPublicWebhooksRazorpayRouteImport } from './routes/api/public/webhooks/razorpay'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -274,6 +275,12 @@ const ApiPublicDiscordUserCallbackRoute =
     path: '/api/public/discord/user-callback',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRazorpayCallbackRoute =
+  ApiPublicRazorpayCallbackRouteImport.update({
+    id: '/api/public/razorpay/callback',
+    path: '/api/public/razorpay/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksRazorpayRoute =
   ApiPublicWebhooksRazorpayRouteImport.update({
     id: '/api/public/webhooks/razorpay',
@@ -337,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/subscription-sweep': typeof ApiPublicCronSubscriptionSweepRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/user-callback': typeof ApiPublicDiscordUserCallbackRoute
+  '/api/public/razorpay/callback': typeof ApiPublicRazorpayCallbackRoute
   '/api/public/webhooks/razorpay': typeof ApiPublicWebhooksRazorpayRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -379,6 +387,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/subscription-sweep': typeof ApiPublicCronSubscriptionSweepRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/user-callback': typeof ApiPublicDiscordUserCallbackRoute
+  '/api/public/razorpay/callback': typeof ApiPublicRazorpayCallbackRoute
   '/api/public/webhooks/razorpay': typeof ApiPublicWebhooksRazorpayRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -427,6 +436,7 @@ export interface FileRoutesById {
   '/api/public/cron/subscription-sweep': typeof ApiPublicCronSubscriptionSweepRoute
   '/api/public/discord/callback': typeof ApiPublicDiscordCallbackRoute
   '/api/public/discord/user-callback': typeof ApiPublicDiscordUserCallbackRoute
+  '/api/public/razorpay/callback': typeof ApiPublicRazorpayCallbackRoute
   '/api/public/webhooks/razorpay': typeof ApiPublicWebhooksRazorpayRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -475,6 +485,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/subscription-sweep'
     | '/api/public/discord/callback'
     | '/api/public/discord/user-callback'
+    | '/api/public/razorpay/callback'
     | '/api/public/webhooks/razorpay'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/subscription-sweep'
     | '/api/public/discord/callback'
     | '/api/public/discord/user-callback'
+    | '/api/public/razorpay/callback'
     | '/api/public/webhooks/razorpay'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -564,6 +576,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/subscription-sweep'
     | '/api/public/discord/callback'
     | '/api/public/discord/user-callback'
+    | '/api/public/razorpay/callback'
     | '/api/public/webhooks/razorpay'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -588,6 +601,7 @@ export interface RootRouteChildren {
   ApiPublicCronSubscriptionSweepRoute: typeof ApiPublicCronSubscriptionSweepRoute
   ApiPublicDiscordCallbackRoute: typeof ApiPublicDiscordCallbackRoute
   ApiPublicDiscordUserCallbackRoute: typeof ApiPublicDiscordUserCallbackRoute
+  ApiPublicRazorpayCallbackRoute: typeof ApiPublicRazorpayCallbackRoute
   ApiPublicWebhooksRazorpayRoute: typeof ApiPublicWebhooksRazorpayRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -883,6 +897,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDiscordUserCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/razorpay/callback': {
+      id: '/api/public/razorpay/callback'
+      path: '/api/public/razorpay/callback'
+      fullPath: '/api/public/razorpay/callback'
+      preLoaderRoute: typeof ApiPublicRazorpayCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/razorpay': {
       id: '/api/public/webhooks/razorpay'
       path: '/api/public/webhooks/razorpay'
@@ -1047,6 +1068,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronSubscriptionSweepRoute: ApiPublicCronSubscriptionSweepRoute,
   ApiPublicDiscordCallbackRoute: ApiPublicDiscordCallbackRoute,
   ApiPublicDiscordUserCallbackRoute: ApiPublicDiscordUserCallbackRoute,
+  ApiPublicRazorpayCallbackRoute: ApiPublicRazorpayCallbackRoute,
   ApiPublicWebhooksRazorpayRoute: ApiPublicWebhooksRazorpayRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
