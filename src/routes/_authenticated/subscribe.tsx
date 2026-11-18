@@ -10,6 +10,9 @@ import { validatePromoCode } from "@/lib/promos.functions";
 import { getAccountOverview } from "@/lib/account.functions";
 import { useEffect, useRef, useState } from "react";
 import { openRazorpay } from "@/lib/razorpay-checkout";
+import { customCheckoutEnabled } from "@/lib/checkout-mode";
+import type { CheckoutSuccess } from "@/lib/razorpay-custom";
+import { PaySheet, type PreparedPayment } from "@/components/site/pay-sheet";
 import { BLUE_PILL_BASE_PAISE, BLUE_PILL_TOTAL_PAISE, gstOn, formatRupees } from "@/lib/pricing";
 import { toast } from "sonner";
 import {
@@ -123,6 +126,65 @@ function Subscribe() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.subscription?.razorpay_subscription_id]);
 
+  // Razorpay's own modal (Standard Checkout). Used for every payment unless the in-page checkout is on.
+  async function openStandard({
+    subscriptionId,
+    keyId,
+  }: {
+    subscriptionId: string;
+    keyId: string;
+  }) {
+    try {
+      await openRazorpay({
+        key: keyId,
+        subscription_id: subscriptionId,
+        name: "Blueprint · Blue Pill",
+        description: `Monthly membership: ${formatRupees(BLUE_PILL_BASE_PAISE)} + ${formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST (18%)`,
+        theme: { color: "#3F7BEA" },
+        prefill: {
+          email: data?.profile?.email ?? undefined,
+          name: data?.profile?.full_name ?? undefined,
+        },
+        handler: async (resp) => {
+          try {
+            await verify({
+              data: {
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_subscription_id: resp.razorpay_subscription_id!,
+                razorpay_signature: resp.razorpay_signature,
+              },
+            });
+            paidRef.current = true;
+            toast.success("You're in.");
+            await qc.invalidateQueries({ queryKey: ["account", "overview"] });
+            goWelcome();
+          } catch (e: any) {
+            // Fall back to server-side reconciliation — the webhook or a
+            // Razorpay poll will confirm the charge.
+            toast.message("Confirming your payment…");
+            const ok = await pollReconcile();
+            if (ok) {
+              toast.success("You're in.");
+              goWelcome();
+            } else {
+              toast.error(e.message ?? "Payment verification failed");
+            }
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            // User closed checkout — if a charge did land, sync it.
+            pollReconcile(15_000).then((ok) => {
+              if (ok) goWelcome();
+            });
+          },
+        },
+      });
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not open checkout");
+    }
+  }
+
   const mut = useMutation({
     mutationFn: () => create({ data: { promo_code: applied?.code ?? null } }),
     onError: (e: any) => toast.error(e.message),
@@ -134,57 +196,74 @@ function Subscribe() {
         goWelcome();
         return;
       }
-      try {
-        await openRazorpay({
-          key: keyId,
-          subscription_id: subscriptionId,
-          name: "Blueprint · Blue Pill",
-          description: `Monthly membership: ${formatRupees(BLUE_PILL_BASE_PAISE)} + ${formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST (18%)`,
-          theme: { color: "#3F7BEA" },
-          prefill: {
-            email: data?.profile?.email ?? undefined,
-            name: data?.profile?.full_name ?? undefined,
-          },
-          handler: async (resp) => {
-            try {
-              await verify({
-                data: {
-                  razorpay_payment_id: resp.razorpay_payment_id,
-                  razorpay_subscription_id: resp.razorpay_subscription_id!,
-                  razorpay_signature: resp.razorpay_signature,
-                },
-              });
-              paidRef.current = true;
-              toast.success("You're in.");
-              await qc.invalidateQueries({ queryKey: ["account", "overview"] });
-              goWelcome();
-            } catch (e: any) {
-              // Fall back to server-side reconciliation — the webhook or a
-              // Razorpay poll will confirm the charge.
-              toast.message("Confirming your payment…");
-              const ok = await pollReconcile();
-              if (ok) {
-                toast.success("You're in.");
-                goWelcome();
-              } else {
-                toast.error(e.message ?? "Payment verification failed");
-              }
-            }
-          },
-          modal: {
-            ondismiss: () => {
-              // User closed checkout — if a charge did land, sync it.
-              pollReconcile(15_000).then((ok) => {
-                if (ok) goWelcome();
-              });
-            },
-          },
-        });
-      } catch (e: any) {
-        toast.error(e.message ?? "Could not open checkout");
-      }
+      await openStandard({ subscriptionId, keyId });
     },
   });
+
+  // ── In-page checkout (src/components/site/pay-sheet.tsx) ────────────────────────────────────────
+  // Off unless the build turns it on. A discount code goes through Razorpay's own modal for now: the
+  // offer changes the first charge and that has not been tried against the in-page form.
+  const [customOn, setCustomOn] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  useEffect(() => setCustomOn(customCheckoutEnabled()), []);
+  const sheetOn = customOn && !applied;
+
+  async function prepareSheet(): Promise<PreparedPayment> {
+    const r = await create({ data: { promo_code: null } });
+    return {
+      kind: "subscription",
+      subscriptionId: r.subscriptionId,
+      keyId: r.keyId,
+      amountPaise: r.amountPaise,
+    };
+  }
+
+  // Popup success: same verification as the Standard handler, against OUR subscription id.
+  async function verifySheet(resp: CheckoutSuccess, p: PreparedPayment) {
+    if (p.kind !== "subscription") return;
+    await verify({
+      data: {
+        razorpay_payment_id: resp.paymentId,
+        razorpay_subscription_id: p.subscriptionId,
+        razorpay_signature: resp.signature,
+      },
+    });
+    paidRef.current = true;
+    toast.success("You're in.");
+    await qc.invalidateQueries({ queryKey: ["account", "overview"] });
+  }
+
+  async function checkSheet() {
+    const r = await reconcile();
+    if (r.status !== "active") return false;
+    paidRef.current = true; // before the refetch below, so the "already subscribed" redirect can't win
+    await qc.invalidateQueries({ queryKey: ["account", "overview"] });
+    return true;
+  }
+
+  // Back from the bank in the same tab (phones, in-app browsers): /api/public/razorpay/callback sends us here
+  // only when it couldn't finish the job itself.
+  useEffect(() => {
+    const outcome = new URLSearchParams(window.location.search).get("payment");
+    if (!outcome) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    if (outcome === "failed") {
+      toast.error("That payment didn’t go through. Please try again.");
+    } else if (outcome === "confirming") {
+      toast.message("Confirming your payment…");
+      pollReconcile().then((ok) => {
+        if (ok) {
+          toast.success("You're in.");
+          goWelcome();
+        } else {
+          toast.error(
+            "We couldn’t confirm your payment yet. If you were charged, access will appear shortly.",
+          );
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const firstName = data?.profile?.full_name?.trim().split(/\s+/)[0];
   const price = payLabel(applied);
@@ -276,7 +355,7 @@ function Subscribe() {
 
         <button
           type="button"
-          onClick={() => mut.mutate()}
+          onClick={() => (sheetOn ? setSheetOpen(true) : mut.mutate())}
           disabled={mut.isPending}
           className={`${btnPrimary} w-full`}
         >
@@ -296,6 +375,37 @@ function Subscribe() {
           anytime from Settings.
         </p>
       </FlowBody>
+
+      {customOn && (
+        <PaySheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          tone="blue"
+          theme="light"
+          planName="Blue Pill"
+          breakdown={`${formatRupees(BLUE_PILL_BASE_PAISE)} + ${formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST (18%)`}
+          cadence="/month"
+          note="Cancel anytime"
+          totalPaise={BLUE_PILL_TOTAL_PAISE}
+          prefill={{ name: data?.profile?.full_name, email: data?.profile?.email }}
+          prepare={prepareSheet}
+          onVerified={verifySheet}
+          check={checkSheet}
+          onConfirmed={goWelcome}
+          onDismiss={() => {
+            // Closed while a bank window may be open: if a charge did land, sync it.
+            pollReconcile(15_000).then((ok) => {
+              if (ok) goWelcome();
+            });
+          }}
+          onUseRazorpay={(p) => {
+            setSheetOpen(false);
+            if (p.kind === "subscription") {
+              void openStandard({ subscriptionId: p.subscriptionId, keyId: p.keyId });
+            }
+          }}
+        />
+      )}
     </FlowShell>
   );
 }

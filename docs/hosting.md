@@ -64,6 +64,38 @@ change them if the domain changes.
 The `/lovable/email/...` paths are historical names. They are kept because the Supabase hook, the Resend webhook and the
 queue job all call them. Renaming means changing those three at the same moment.
 
+## In-page checkout (optional, off by default)
+
+The Pay buttons open Razorpay's own modal. `src/components/site/pay-sheet.tsx` is our own card / UPI form with
+Razorpay processing behind it. The build variable `VITE_CUSTOM_CHECKOUT` decides who gets it (a build variable, so
+redeploy after changing it):
+
+- unset: nobody. Members get Razorpay's modal. This is the default.
+- `preview`: only a browser tab that opened `/subscribe` or `/enroll` with `?checkout=custom`. The choice is
+  remembered for that tab, so a sign-in redirect does not lose it; `?checkout=off` clears it. Use this to pay with a
+  real card on the live site before anyone else sees the form.
+- `1`: everyone.
+
+In dev the `?checkout=custom` opt-in always works, with no variable.
+
+The bank step is still Razorpay's: a popup on desktop, and on phones and in Instagram / Facebook's browser the whole
+tab goes to the bank and comes back through `/api/public/razorpay/callback`. Test mode proved the card and UPI-ID
+payments end to end (`spikes/razorpay-custom-checkout`). Before turning it on for members, try these in Razorpay test
+mode and then with one real payment:
+
+1. Card on desktop. The popup path ends on `/welcome`. The spike's browser could not show a popup, so confirm that
+   `payment.success` really fires; if it does not, the sheet still finishes by polling Razorpay.
+2. Card on a phone and inside Instagram's browser (the redirect path). Razorpay may want the site's domain allow-listed
+   for `callback_url` in the Dashboard.
+3. UPI ID. Razorpay deprecated UPI Collect on 28 Feb 2026 for most merchants: test mode accepted it, live may not.
+   "More ways to pay" hands the same subscription to Razorpay's own modal, which has every method.
+4. The Red Pill one-time payment.
+5. A discount code. Offers change the first charge, which has not been tried against the form, so a code sends the
+   member to Razorpay's modal instead of the sheet.
+
+Card numbers are typed into our page and go straight to Razorpay. Ask Razorpay and the acquiring bank which PCI
+level that puts us in before enabling it.
+
 ## Cutting over from Lovable
 
 DNS for `ifvg.in` is on Cloudflare, and `blueprint.ifvg.in` is a proxied record there (not delegated to Lovable). The

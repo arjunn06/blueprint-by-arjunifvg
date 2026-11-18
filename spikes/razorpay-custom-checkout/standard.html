@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Standard Checkout control</title>
+  <style>
+    :root { color-scheme: light dark; --line: #8884; --muted: #888; --accent: #3f7bea; }
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 1.3rem; margin: 0 0 4px; }
+    h2 { font-size: 1rem; margin: 0 0 8px; }
+    section { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .tag { font-size: .7rem; background: #d9423c; color: #fff; padding: 2px 8px; border-radius: 99px; vertical-align: middle; }
+    .muted { color: var(--muted); margin: 4px 0; }
+    button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 0; background: var(--accent); color: #fff; cursor: pointer; }
+    button.ghost { background: transparent; color: inherit; border: 1px solid var(--line); }
+    pre { background: #8881; border-radius: 8px; padding: 10px; overflow: auto; font-size: .8rem; margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; }
+    #log { max-height: 320px; }
+    code { background: #8881; padding: 1px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Standard Checkout control <span class="tag">TEST MODE</span></h1>
+  <p class="muted">
+    The same kind of subscription through the <code>checkout.js</code> modal the app uses today. If this fails
+    but the custom page works (or the reverse), the difference is the checkout type, not the test account.
+  </p>
+
+  <section>
+    <h2>1 &middot; Create a test subscription</h2>
+    <button id="create">Create subscription</button>
+    <p id="subInfo" class="muted"></p>
+  </section>
+
+  <section>
+    <h2>2 &middot; Open Standard Checkout</h2>
+    <p class="muted">Use the test card 4718 6091 0820 4366, any future expiry, any CVV, then click Success.</p>
+    <button id="open">Open checkout</button>
+  </section>
+
+  <section>
+    <h2>3 &middot; Result</h2>
+    <button id="status" class="ghost">Check subscription status</button>
+    <pre id="result">Nothing yet.</pre>
+  </section>
+
+  <section>
+    <h2>Event log</h2>
+    <button id="clear" class="ghost">Clear log</button>
+    <pre id="log"></pre>
+  </section>
+
+  <p><a href="/">&larr; Custom Checkout page</a></p>
+
+  <script src="/common.js"></script>
+  <script>
+    const state = { sub: null, keyId: null };
+    instrument();
+    paintLog();
+
+    (async () => {
+      try {
+        const cfg = await api("/config");
+        state.keyId = cfg.keyId;
+        await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+        log("init", "checkout.js loaded, key " + cfg.keyId);
+      } catch (e) {
+        log("init-failed", e.message);
+      }
+    })();
+
+    $("create").addEventListener("click", async () => {
+      try {
+        state.sub = await createSubscription();
+        $("subInfo").textContent = `${state.sub.subscriptionId} · ${state.sub.status} · ₹${(state.sub.amount / 100).toFixed(2)}/month`;
+      } catch (e) {
+        log("create-failed", e.message, e.detail);
+        $("subInfo").textContent = e.message;
+      }
+    });
+
+    $("open").addEventListener("click", () => {
+      if (!state.sub) return log("warn", "Create the subscription first (step 1).");
+      const rzp = new Razorpay({
+        key: state.keyId,
+        subscription_id: state.sub.subscriptionId,
+        name: "Spike · Standard Checkout",
+        description: "Test subscription",
+        theme: { color: "#3F7BEA" },
+        handler: (resp) => {
+          log("handler", "fired", { payment: resp.razorpay_payment_id, subscription: resp.razorpay_subscription_id });
+          verifyPayment(state.sub.subscriptionId, resp)
+            .then((r) => show("result", r))
+            .catch((e) => { log("verify-failed", e.message); show("result", { error: e.message, detail: e.detail }); });
+        },
+        modal: { ondismiss: () => log("dismiss", "modal closed") },
+      });
+      rzp.on("payment.failed", (r) => log("payment.failed", r?.error?.description ?? "unknown", pickError(r?.error)));
+      log("open", "Standard Checkout, subscription_id=" + state.sub.subscriptionId);
+      rzp.open();
+    });
+
+    $("status").addEventListener("click", async () => {
+      if (!state.sub) return log("warn", "No subscription in memory. Create one first.");
+      try {
+        const s = await api("/api/status", { subscriptionId: state.sub.subscriptionId });
+        log("status", `${s.id} ${s.status}`);
+        show("result", s);
+      } catch (e) {
+        log("status-failed", e.message);
+      }
+    });
+
+    $("clear").addEventListener("click", () => { lines.length = 0; writeStored(LOG_KEY, "[]"); paintLog(); });
+  </script>
+</body>
+</html>

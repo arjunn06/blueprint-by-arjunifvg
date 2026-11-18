@@ -2,7 +2,7 @@ import { RED_PILL_BASE_PAISE, RED_PILL_TOTAL_PAISE, gstOn, formatRupees } from "
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createRedPillOrder,
   verifyRedPillPayment,
@@ -10,6 +10,9 @@ import {
 } from "@/lib/redpill-billing.functions";
 import { getAccountOverview } from "@/lib/account.functions";
 import { openRazorpay } from "@/lib/razorpay-checkout";
+import { customCheckoutEnabled } from "@/lib/checkout-mode";
+import type { CheckoutSuccess } from "@/lib/razorpay-custom";
+import { PaySheet, type PreparedPayment } from "@/components/site/pay-sheet";
 import { sendTransactionalEmail } from "@/lib/email/send";
 import { toast } from "sonner";
 import { Check } from "@phosphor-icons/react";
@@ -122,66 +125,143 @@ function Enroll() {
     return false;
   }
 
+  // Razorpay's own modal (Standard Checkout). Used for every payment unless the in-page checkout is on.
+  async function openStandard({
+    orderId,
+    keyId,
+    amount,
+  }: {
+    orderId: string;
+    keyId: string;
+    amount: number;
+  }) {
+    try {
+      await openRazorpay({
+        key: keyId,
+        order_id: orderId,
+        amount,
+        currency: "INR",
+        name: "Blueprint · Red Pill",
+        description: `One month live mentorship: ${formatRupees(RED_PILL_BASE_PAISE)} + ${formatRupees(gstOn(RED_PILL_BASE_PAISE))} GST (18%)`,
+        theme: { color: "#D9423C" },
+        prefill: {
+          email: data?.profile?.email ?? undefined,
+          name: data?.profile?.full_name ?? undefined,
+        },
+        handler: async (resp) => {
+          try {
+            await verify({
+              data: {
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_order_id: resp.razorpay_order_id!,
+                razorpay_signature: resp.razorpay_signature,
+                inviteToken: inviteToken ?? undefined,
+              },
+            });
+            toast.success("You're in. Welcome to The Red Pill.");
+            await sendWelcomeEmail(resp.razorpay_order_id!);
+            clearRedPillInvite();
+            await qc.invalidateQueries({ queryKey: ["account", "overview"] });
+            navigate({ to: "/app/discord" });
+          } catch (e: any) {
+            toast.message("Confirming your payment…");
+            const ok = await pollReconcile();
+            if (ok) {
+              toast.success("You're in.");
+              await sendWelcomeEmail(resp.razorpay_order_id!);
+              navigate({ to: "/app/discord" });
+            } else {
+              toast.error(e.message ?? "Payment verification failed");
+            }
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            pollReconcile(15_000).then(async (ok) => {
+              if (ok) {
+                await sendWelcomeEmail(orderId);
+                navigate({ to: "/app/discord" });
+              }
+            });
+          },
+        },
+      });
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not open checkout");
+    }
+  }
+
   const mut = useMutation({
     mutationFn: () => create({ data: { inviteToken: inviteToken ?? undefined } }),
     onError: (e: any) => toast.error(e.message ?? "Could not start checkout"),
     onSuccess: async ({ orderId, keyId, amount }) => {
-      try {
-        await openRazorpay({
-          key: keyId,
-          order_id: orderId,
-          amount,
-          currency: "INR",
-          name: "Blueprint · Red Pill",
-          description: `One month live mentorship: ${formatRupees(RED_PILL_BASE_PAISE)} + ${formatRupees(gstOn(RED_PILL_BASE_PAISE))} GST (18%)`,
-          theme: { color: "#D9423C" },
-          prefill: {
-            email: data?.profile?.email ?? undefined,
-            name: data?.profile?.full_name ?? undefined,
-          },
-          handler: async (resp) => {
-            try {
-              await verify({
-                data: {
-                  razorpay_payment_id: resp.razorpay_payment_id,
-                  razorpay_order_id: resp.razorpay_order_id!,
-                  razorpay_signature: resp.razorpay_signature,
-                  inviteToken: inviteToken ?? undefined,
-                },
-              });
-              toast.success("You're in. Welcome to The Red Pill.");
-              await sendWelcomeEmail(resp.razorpay_order_id!);
-              clearRedPillInvite();
-              await qc.invalidateQueries({ queryKey: ["account", "overview"] });
-              navigate({ to: "/app/discord" });
-            } catch (e: any) {
-              toast.message("Confirming your payment…");
-              const ok = await pollReconcile();
-              if (ok) {
-                toast.success("You're in.");
-                await sendWelcomeEmail(resp.razorpay_order_id!);
-                navigate({ to: "/app/discord" });
-              } else {
-                toast.error(e.message ?? "Payment verification failed");
-              }
-            }
-          },
-          modal: {
-            ondismiss: () => {
-              pollReconcile(15_000).then(async (ok) => {
-                if (ok) {
-                  await sendWelcomeEmail(orderId);
-                  navigate({ to: "/app/discord" });
-                }
-              });
-            },
-          },
-        });
-      } catch (e: any) {
-        toast.error(e.message ?? "Could not open checkout");
-      }
+      await openStandard({ orderId, keyId, amount });
     },
   });
+
+  // ── In-page checkout (src/components/site/pay-sheet.tsx) ────────────────────────────────────────
+  // Off unless the build turns it on; otherwise the button opens Razorpay's own modal as before.
+  const [customOn, setCustomOn] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const orderRef = useRef<string | null>(null);
+  useEffect(() => setCustomOn(customCheckoutEnabled()), []);
+
+  async function prepareSheet(): Promise<PreparedPayment> {
+    const r = await create({ data: { inviteToken: inviteToken ?? undefined } });
+    orderRef.current = r.orderId;
+    return { kind: "order", orderId: r.orderId, keyId: r.keyId, amountPaise: r.amount };
+  }
+
+  // Popup success: same verification as the Standard handler, against OUR order id.
+  async function verifySheet(resp: CheckoutSuccess, p: PreparedPayment) {
+    if (p.kind !== "order") return;
+    await verify({
+      data: {
+        razorpay_payment_id: resp.paymentId,
+        razorpay_order_id: p.orderId,
+        razorpay_signature: resp.signature,
+        inviteToken: inviteToken ?? undefined,
+      },
+    });
+    toast.success("You're in. Welcome to The Red Pill.");
+    await sendWelcomeEmail(p.orderId);
+    clearRedPillInvite();
+    await qc.invalidateQueries({ queryKey: ["account", "overview"] });
+  }
+
+  async function checkSheet() {
+    const r = await reconcile();
+    if (!(r.status === "active" && r.pill === "red")) return false;
+    // Idempotent per order, so sending it again after a normal verify is harmless.
+    if (orderRef.current) await sendWelcomeEmail(orderRef.current);
+    clearRedPillInvite();
+    await qc.invalidateQueries({ queryKey: ["account", "overview"] });
+    return true;
+  }
+
+  // Back from the bank in the same tab (phones, in-app browsers): /api/public/razorpay/callback sends us here
+  // only when it couldn't finish the job itself.
+  useEffect(() => {
+    const outcome = new URLSearchParams(window.location.search).get("payment");
+    if (!outcome) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    if (outcome === "failed") {
+      toast.error("That payment didn’t go through. Please try again.");
+    } else if (outcome === "confirming") {
+      toast.message("Confirming your payment…");
+      pollReconcile().then((ok) => {
+        if (ok) {
+          toast.success("You're in.");
+          navigate({ to: "/app/discord" });
+        } else {
+          toast.error(
+            "We couldn’t confirm your payment yet. If you were charged, access will appear shortly.",
+          );
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <CheckoutShell
@@ -223,7 +303,7 @@ function Enroll() {
 
       <button
         type="button"
-        onClick={() => mut.mutate()}
+        onClick={() => (customOn ? setSheetOpen(true) : mut.mutate())}
         disabled={mut.isPending}
         className={`${btnPrimary} mt-8 w-full`}
       >
@@ -234,6 +314,40 @@ function Enroll() {
       <p className="mt-3 text-center text-xs text-muted-foreground">
         {inviteToken ? "Priority slot from the waitlist. " : ""}Secure payment through Razorpay.
       </p>
+
+      {customOn && (
+        <PaySheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          tone="red"
+          theme="dark"
+          planName="Red Pill"
+          breakdown={`${formatRupees(RED_PILL_BASE_PAISE)} + ${formatRupees(gstOn(RED_PILL_BASE_PAISE))} GST (18%)`}
+          cadence="one time"
+          note="No recurring charge"
+          totalPaise={RED_PILL_TOTAL_PAISE}
+          prefill={{ name: data?.profile?.full_name, email: data?.profile?.email }}
+          prepare={prepareSheet}
+          onVerified={verifySheet}
+          check={checkSheet}
+          onConfirmed={() => navigate({ to: "/app/discord" })}
+          onDismiss={() => {
+            // Closed while a bank window may be open: if a charge did land, sync it.
+            pollReconcile(15_000).then(async (ok) => {
+              if (ok && orderRef.current) {
+                await sendWelcomeEmail(orderRef.current);
+                navigate({ to: "/app/discord" });
+              }
+            });
+          }}
+          onUseRazorpay={(p) => {
+            setSheetOpen(false);
+            if (p.kind === "order") {
+              void openStandard({ orderId: p.orderId, keyId: p.keyId, amount: p.amountPaise });
+            }
+          }}
+        />
+      )}
     </CheckoutShell>
   );
 }
