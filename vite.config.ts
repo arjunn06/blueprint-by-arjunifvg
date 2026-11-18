@@ -79,7 +79,11 @@ export default defineConfig(({ command, mode }): UserConfig => {
                 // Git integration matches, so keep it stable.
                 // `keep_vars` stops a deploy from wiping variables set in the dashboard: the generated
                 // config declares none, so without it every deploy would delete them.
-                wrangler: { name: "crystal-ball-portal", keep_vars: true },
+                // `previews` is for pull requests: Cloudflare's Git integration builds every non-production
+                // branch with `npx wrangler preview`, which refuses to run unless the config has a
+                // `previews` block (an empty one is enough). Without it each PR build fails at the deploy
+                // step. Production deploys (`wrangler deploy`, from main) are unaffected.
+                wrangler: { name: "crystal-ball-portal", keep_vars: true, previews: {} },
               },
             }),
           ]

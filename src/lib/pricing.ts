@@ -9,6 +9,9 @@ export const RED_PILL_BASE_PAISE = 299900 // one-time
 export const gstOn = (basePaise: number) => Math.round(basePaise * GST_RATE)
 export const withGst = (basePaise: number) => basePaise + gstOn(basePaise)
 
+/** Days of access one Red Pill payment buys. */
+export const RED_PILL_ACCESS_DAYS = 31;
+
 export const BLUE_PILL_TOTAL_PAISE = withGst(BLUE_PILL_BASE_PAISE)
 export const RED_PILL_TOTAL_PAISE = withGst(RED_PILL_BASE_PAISE)
 
