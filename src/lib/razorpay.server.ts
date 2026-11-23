@@ -33,19 +33,27 @@ export async function fetchRemoteSubscription(
   }
 }
 
+const ENDED_STATUSES = ["cancelled", "completed", "halted", "paused", "expired"];
+
 /**
- * The date access should run through. Razorpay reports `current_end` for the
- * period already paid for; on a cancelled/halted mandate it may only expose
- * `charge_at` / `end_at`. We take the furthest of these so cancelling autopay
- * never shortens the window the member already paid for.
+ * The date access should run through. Razorpay reports `current_end` for the period already paid for, and
+ * `charge_at` (the next debit) is the same moment while a subscription is live; we take the furthest of the
+ * two so cancelling autopay never shortens the window the member already paid for.
+ *
+ * `end_at` is NOT a paid-through date: it is when the whole subscription is scheduled to finish, which for our
+ * 120-cycle plan is about ten years away. Counting it made every paying member entitled until ~2036 (and
+ * `isEntitled` also honours `cancelled`, so cancelling or failing a renewal never ended access). It is only
+ * used as a last resort for a subscription that has already ended and no longer reports a current period.
  */
 export function paidThroughFromRemote(remote: RemoteSubscription | null): string | null {
   if (!remote) return null;
-  const candidates = [remote.current_end, remote.charge_at, remote.end_at].filter(
-    (v): v is number => typeof v === "number" && v > 0,
-  );
-  if (!candidates.length) return null;
-  return new Date(Math.max(...candidates) * 1000).toISOString();
+  const valid = (v: unknown): v is number => typeof v === "number" && v > 0;
+  const paid = [remote.current_end, remote.charge_at].filter(valid);
+  if (!paid.length && ENDED_STATUSES.includes(remote.status ?? "") && valid(remote.end_at)) {
+    paid.push(remote.end_at);
+  }
+  if (!paid.length) return null;
+  return new Date(Math.max(...paid) * 1000).toISOString();
 }
 
 /** Never move a paid-through date earlier than what we already stored. */
