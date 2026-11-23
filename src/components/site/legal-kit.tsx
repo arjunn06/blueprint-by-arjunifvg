@@ -8,7 +8,7 @@ import { container } from "./ui";
  * Change the address here and every legal page, link and mailto follows.
  */
 
-export const CONTACT_EMAIL = "support@blueprint.ifvg.in";
+export const CONTACT_EMAIL = "support@ifvg.in";
 
 export const bodyText = "text-[15.5px] leading-[1.75] text-muted-foreground";
 export const strongText = "font-medium text-foreground";
