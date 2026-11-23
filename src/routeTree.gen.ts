@@ -24,7 +24,7 @@ import { Route as AuthenticatedEnrollRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated/subscribe'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as RedpillApplyRouteImport } from './routes/redpill_.apply'
 import { Route as RedpillInviteRouteImport } from './routes/redpill_.invite'
@@ -132,9 +132,9 @@ const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/callback',
-  path: '/callback',
-  getParentRoute: () => AuthRoute,
+  id: '/auth_/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
@@ -313,7 +313,7 @@ const LovableEmailTransactionalSendRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apply': typeof ApplyRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bluepill': typeof BluepillRoute
   '/privacy': typeof PrivacyRoute
   '/redpill': typeof RedpillRoute
@@ -361,7 +361,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apply': typeof ApplyRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bluepill': typeof BluepillRoute
   '/privacy': typeof PrivacyRoute
   '/redpill': typeof RedpillRoute
@@ -407,7 +407,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/apply': typeof ApplyRoute
-  '/auth': typeof AuthRouteWithChildren
+  '/auth': typeof AuthRoute
   '/bluepill': typeof BluepillRoute
   '/privacy': typeof PrivacyRoute
   '/redpill': typeof RedpillRoute
@@ -419,7 +419,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
-  '/auth/callback': typeof AuthCallbackRoute
+  '/auth_/callback': typeof AuthCallbackRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/redpill_/apply': typeof RedpillApplyRoute
   '/redpill_/invite': typeof RedpillInviteRoute
@@ -562,7 +562,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/subscribe'
     | '/_authenticated/welcome'
-    | '/auth/callback'
+    | '/auth_/callback'
     | '/email/unsubscribe'
     | '/redpill_/apply'
     | '/redpill_/invite'
@@ -600,12 +600,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApplyRoute: typeof ApplyRoute
-  AuthRoute: typeof AuthRouteWithChildren
+  AuthRoute: typeof AuthRoute
   BluepillRoute: typeof BluepillRoute
   PrivacyRoute: typeof PrivacyRoute
   RedpillRoute: typeof RedpillRoute
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   RedpillApplyRoute: typeof RedpillApplyRoute
   RedpillInviteRoute: typeof RedpillInviteRoute
@@ -727,12 +728,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/callback'
+    '/auth_/callback': {
+      id: '/auth_/callback'
+      path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof AuthRoute
+      parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
@@ -1061,26 +1062,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AuthRouteChildren {
-  AuthCallbackRoute: typeof AuthCallbackRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthCallbackRoute: AuthCallbackRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApplyRoute: ApplyRoute,
-  AuthRoute: AuthRouteWithChildren,
+  AuthRoute: AuthRoute,
   BluepillRoute: BluepillRoute,
   PrivacyRoute: PrivacyRoute,
   RedpillRoute: RedpillRoute,
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   RedpillApplyRoute: RedpillApplyRoute,
   RedpillInviteRoute: RedpillInviteRoute,
