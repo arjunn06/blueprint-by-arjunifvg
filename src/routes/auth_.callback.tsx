@@ -3,15 +3,37 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { postAuthTarget } from "@/lib/intent";
+import { toast } from "sonner";
 
-export const Route = createFileRoute("/auth/callback")({
+export const Route = createFileRoute("/auth_/callback")({
   component: AuthCallback,
 });
+
+/**
+ * Supabase reports a failed sign-in (Google refused or was cancelled, an expired invite link) as `error` and
+ * `error_description` in the URL hash, or in the query string with PKCE. Returns the text to show, or null.
+ */
+function signInErrorFromUrl(): string | null {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const error = hash.get("error") ?? query.get("error");
+  if (!error) return null;
+  return (
+    hash.get("error_description") ?? query.get("error_description") ?? "Could not sign you in."
+  );
+}
 
 function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const failure = signInErrorFromUrl();
+    if (failure) {
+      toast.error(failure);
+      navigate({ to: "/auth", replace: true });
+      return;
+    }
+
     let cancelled = false;
     async function go(userId: string) {
       const { data } = await supabase

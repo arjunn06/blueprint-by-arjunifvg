@@ -54,7 +54,7 @@ change them if the domain changes.
 | ----------------------------------------- | ------------------------------------------------------------------- |
 | Razorpay webhook                          | `/api/public/webhooks/razorpay`                                     |
 | Discord OAuth redirect URIs               | `/api/public/discord/callback`, `/api/public/discord/user-callback` |
-| Supabase Auth: Site URL and Redirect URLs | the site root                                                       |
+| Supabase Auth: Site URL and Redirect URLs | the site root, and `/auth/callback` (Google sign-in lands there)    |
 | Supabase Auth: Send Email hook            | `/lovable/email/auth/webhook`                                       |
 | Resend webhook (bounces, complaints)      | `/lovable/email/suppression`                                        |
 | Supabase Vault secret `app_base_url`      | read by the pg_cron jobs below                                      |
@@ -63,6 +63,36 @@ change them if the domain changes.
 
 The `/lovable/email/...` paths are historical names. They are kept because the Supabase hook, the Resend webhook and the
 queue job all call them. Renaming means changing those three at the same moment.
+
+## Google sign-in
+
+`/auth` shows "Continue with Google" under the email-code form. It needs no Worker variable or secret: the Google client
+secret lives in Supabase, and the browser only talks to Supabase. Until the provider is switched on in Supabase the button
+sends the member to a raw `Unsupported provider: provider is not enabled` JSON page, so finish the setup before deploying.
+
+1. Google Cloud Console > APIs & Services > Credentials > Create credentials > OAuth client ID > Web application.
+   Authorized redirect URI: `https://jknnofjfkuqastcbdshy.supabase.co/auth/v1/callback`. No JavaScript origins are needed
+   for this redirect flow.
+2. OAuth consent screen: scopes `openid`, `email`, `profile` only (not sensitive, so Google does not need to review the
+   app). Set the publishing status to **In production**; in "Testing" only listed test users can sign in.
+3. Supabase > Authentication > Providers > Google: switch on, paste the client ID and secret.
+4. Supabase > Authentication > URL Configuration: Redirect URLs must allow `https://blueprint.ifvg.in/auth/callback`
+   (a `https://blueprint.ifvg.in/**` wildcard does) and `http://localhost:8080/auth/callback` for dev.
+5. Check: sign in with Google on a new address (lands on `/onboarding` with name and photo filled in), then with an address
+   that already has an account (same account, no second profile).
+
+Things to know:
+
+- **Identity is the email.** Subscriptions, the Razorpay prefill and the journal grant all match on the profile email.
+  Supabase links a Google sign-in to an existing account only when the emails match, so a member who subscribed as
+  `a@…` and signs in with Google as `b@…` gets a new, empty account. The button always shows Google's account picker
+  and the page tells members to use the email they subscribed with.
+- **Admin by email.** `handle_new_user` makes three addresses admin when their account is first created. Google vouches
+  for the address, so this is no weaker than the email code, but only enable providers that verify email.
+- **In-app browsers.** Google refuses OAuth inside Instagram's, Facebook's and similar embedded browsers
+  (`disallowed_useragent`), so `src/lib/in-app-browser.ts` hides the button there and members use the email code.
+- **Consent screen name.** Google shows `jknnofjfkuqastcbdshy.supabase.co`, not our domain, as where the member is going.
+  A Supabase custom domain fixes that; so would moving to Google Identity Services (`signInWithIdToken`).
 
 ## In-page checkout (optional, off by default)
 
