@@ -1,5 +1,5 @@
 import { RED_PILL_BASE_PAISE, RED_PILL_TOTAL_PAISE, gstOn, formatRupees } from "@/lib/pricing";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -232,7 +232,12 @@ function Enroll() {
           : `Complete payment for ${formatRupees(RED_PILL_TOTAL_PAISE)}`}
       </button>
       <p className="mt-3 text-center text-xs text-muted-foreground">
-        {inviteToken ? "Priority slot from the waitlist. " : ""}Secure payment through Razorpay.
+        {inviteToken ? "Priority slot from the waitlist. " : ""}Secure payment through Razorpay. By
+        paying you agree to our{" "}
+        <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
+          Terms of Service
+        </Link>
+        .
       </p>
     </CheckoutShell>
   );
