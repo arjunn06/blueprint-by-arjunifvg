@@ -2,11 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FlowBody, FlowField, FlowHeading, FlowOtp, FlowShell } from "@/components/site/flow-kit";
-import { btnPrimary } from "@/components/site/ui";
+import { btnPrimary, btnSecondary } from "@/components/site/ui";
+import { GoogleIcon } from "@/components/google-icon";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CircleNotch } from "@phosphor-icons/react";
 import { getRedPillInviteToken, postAuthTarget } from "@/lib/intent";
+import { isEmbeddedBrowser } from "@/lib/in-app-browser";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -40,13 +42,26 @@ function AuthPage() {
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [redInvite, setRedInvite] = useState(false);
+  // Off until the browser is known: Google refuses to sign anyone in from Instagram's or Facebook's in-app browser.
+  const [showGoogle, setShowGoogle] = useState(false);
+  const [googling, setGoogling] = useState(false);
 
   useEffect(() => {
     setRedInvite(!!getRedPillInviteToken());
+    setShowGoogle(!isEmbeddedBrowser(navigator.userAgent));
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) routeAfterLogin(navigate, data.session.user.id);
     });
   }, [navigate]);
+
+  // Coming back from Google with the back button restores this page mid-redirect, with the button still spinning.
+  useEffect(() => {
+    const reset = (e: PageTransitionEvent) => {
+      if (e.persisted) setGoogling(false);
+    };
+    window.addEventListener("pageshow", reset);
+    return () => window.removeEventListener("pageshow", reset);
+  }, []);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -61,6 +76,24 @@ function AuthPage() {
     });
     if (error) throw error;
     setCooldown(RESEND_SECONDS);
+  }
+
+  async function handleGoogle() {
+    if (googling) return;
+    setGoogling(true);
+    // Success leaves the page for Google, then Supabase, then /auth/callback; only a failure comes back here.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // The email on the Google account is the member's identity here (subscriptions match on it), so always ask which one.
+        queryParams: { prompt: "select_account" },
+      },
+    });
+    if (error) {
+      toast.error(error.message || "Could not start Google sign-in");
+      setGoogling(false);
+    }
   }
 
   async function handleEmailSubmit(e: React.FormEvent) {
@@ -169,9 +202,33 @@ function AuthPage() {
               "Continue"
             )}
           </button>
+          {showGoogle && (
+            <>
+              <div className="flex items-center gap-4 text-hint text-tertiary" aria-hidden="true">
+                <span className="h-px flex-1 bg-border" />
+                or
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <button
+                type="button"
+                onClick={handleGoogle}
+                disabled={googling || sending}
+                className={`${btnSecondary} w-full`}
+              >
+                {googling ? (
+                  <CircleNotch className="mr-1.5 size-5 animate-spin" weight="bold" />
+                ) : (
+                  <GoogleIcon className="mr-1.5 size-5" />
+                )}
+                Continue with Google
+              </button>
+            </>
+          )}
           <p className="text-center text-hint text-tertiary">
-            No password. We email you a one-time code, and signing in creates your account. By
-            continuing you agree to our{" "}
+            {showGoogle
+              ? "No password. We email you a one-time code, or you can continue with Google. Signing in creates your account, so use the email you subscribed with."
+              : "No password. We email you a one-time code, and signing in creates your account."}{" "}
+            By continuing you agree to our{" "}
             <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
               Terms of Service
             </Link>{" "}
