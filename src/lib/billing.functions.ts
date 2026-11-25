@@ -57,17 +57,21 @@ export const createSubscription = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin
-      .from("subscriptions")
-      .upsert(
-        {
-          user_id: userId,
-          razorpay_subscription_id: respBody.id,
-          status: trialEndsAt ? "active" : "created",
-          current_period_end: trialEndsAt,
-        },
-        { onConflict: "user_id" },
-      );
+    const { error: stageError } = await supabaseAdmin.from("subscriptions").upsert(
+      {
+        user_id: userId,
+        razorpay_subscription_id: respBody.id,
+        status: trialEndsAt ? "active" : "created",
+        current_period_end: trialEndsAt,
+      },
+      { onConflict: "user_id" },
+    );
+    // This row is how a payment gets matched to a member. If it did not save, taking the payment would leave
+    // a charge we cannot match, so stop here instead of sending them to pay.
+    if (stageError) {
+      console.error("createSubscription: could not save the subscription row", respBody.id, stageError);
+      throw new Error("We couldn’t start your membership just now. Please try again in a moment.");
+    }
 
     // A free trial is active access from this moment, journal included.
     if (trialEndsAt) {
