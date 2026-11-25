@@ -16,11 +16,11 @@ import { SiteShell } from "./shell";
 
 /**
  * Blue Pill flow kit: the sign-in, profile, membership and welcome screens from the Figma
- * "Arjun IFVG" page. White canvas, a centred column on the left, one photograph on the right.
+ * "Arjun IFVG" page. White canvas, a centred column on the left, one poster on the right.
  */
 
-/** Same photograph on every step (Figma "Frame 7"). */
-const PHOTO = "/img/flow-photo.jpg";
+/** Same poster on every step. Its aspect ratio drives the fit in `FlowShell`, so keep the two in step. */
+const POSTER = { src: "/img/flow-poster.webp", width: 1455, height: 2000 };
 
 export function FlowShell({
   children,
@@ -68,17 +68,19 @@ export function FlowShell({
           </div>
         </div>
 
+        {/* The poster has type baked into it, so it is shown whole rather than cropped to the
+            panel: the container query units size it to the largest 1455:2000 box that fits. */}
         <aside
           aria-hidden
-          className="hidden lg:sticky lg:top-0 lg:block lg:h-[100dvh] lg:py-[11.85dvh] lg:pl-[3vw] lg:pr-[4.4vw]"
+          className="hidden lg:sticky lg:top-0 lg:flex lg:h-[100dvh] lg:items-center lg:justify-center lg:py-[11.85dvh] lg:pl-[3vw] lg:pr-[4.4vw] lg:[container-type:size]"
         >
           <img
-            src={PHOTO}
+            src={POSTER.src}
             alt=""
-            width={640}
-            height={959}
+            width={POSTER.width}
+            height={POSTER.height}
             fetchPriority="high"
-            className="size-full rounded-photo object-cover"
+            className="h-auto w-[min(100cqw,calc(100cqh*1455/2000))] rounded-photo"
           />
         </aside>
       </main>
