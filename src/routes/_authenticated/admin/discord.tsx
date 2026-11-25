@@ -339,7 +339,7 @@ function GuildAndRolePicker({
             <div className="grid md:grid-cols-2 gap-5">
               <RoleGroup
                 label="Blue Pill"
-                hint="₹499/mo subscribers"
+                hint="₹599/mo subscribers"
                 accent="#1E6BFF"
                 roles={rolesQuery.data!}
                 selected={selectedRoles}

@@ -10,12 +10,10 @@ import {
   type LegalSection,
 } from "@/components/site/legal-kit";
 import {
-  BLUE_PILL_BASE_PAISE,
-  GST_RATE,
+  BLUE_PILL_TOTAL_PAISE,
   RED_PILL_ACCESS_DAYS,
-  RED_PILL_BASE_PAISE,
+  RED_PILL_TOTAL_PAISE,
   formatRupees,
-  withGst,
 } from "@/lib/pricing";
 
 const TITLE = "Terms of Service | Blueprint";
@@ -24,7 +22,7 @@ const DESCRIPTION =
 const URL = "https://blueprint.ifvg.in/terms";
 
 /** Bump this whenever the text below changes in substance. */
-const UPDATED = "18 November 2026";
+const UPDATED = "25 November 2026";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -46,11 +44,8 @@ export const Route = createFileRoute("/terms")({
 });
 
 /* Prices come from the same file checkout uses, so these terms cannot drift from what is charged. */
-const GST = `${Math.round(GST_RATE * 100)}%`;
-const BLUE = formatRupees(BLUE_PILL_BASE_PAISE);
-const BLUE_TOTAL = formatRupees(withGst(BLUE_PILL_BASE_PAISE));
-const RED = formatRupees(RED_PILL_BASE_PAISE);
-const RED_TOTAL = formatRupees(withGst(RED_PILL_BASE_PAISE));
+const BLUE = formatRupees(BLUE_PILL_TOTAL_PAISE);
+const RED = formatRupees(RED_PILL_TOTAL_PAISE);
 
 /* ------------------------------------------------------------------ */
 /* Content                                                             */
@@ -141,10 +136,10 @@ const SECTIONS: LegalSection[] = [
               label: "Blue Pill",
               body: (
                 <>
-                  {BLUE} a month + {GST} GST ({BLUE_TOTAL} in total), billed monthly through
-                  Razorpay until you cancel. Includes the library of recorded Red Pill sessions, the
-                  members’ Discord with live New York session streams and trade alerts, and the IFVG
-                  Journal, for as long as the membership is active.
+                  {BLUE} a month, billed monthly through Razorpay until you cancel. Includes the
+                  library of recorded Red Pill sessions, the members’ Discord with live New York
+                  session streams and trade alerts, and the IFVG Journal, for as long as the
+                  membership is active.
                 </>
               ),
             },
@@ -152,10 +147,10 @@ const SECTIONS: LegalSection[] = [
               label: "Red Pill",
               body: (
                 <>
-                  {RED} + {GST} GST ({RED_TOTAL} in total), paid once, by application. One payment
-                  buys {RED_PILL_ACCESS_DAYS} days of access from the day it succeeds: live training
-                  on Zoom (the nine-module course in week 1, then live sessions and daily reviews of
-                  Arjun’s own trades), the premium Discord and the IFVG Journal. It does not renew.
+                  {RED}, paid once, by application. One payment buys {RED_PILL_ACCESS_DAYS} days of
+                  access from the day it succeeds: live training on Zoom (the nine-module course in
+                  week 1, then live sessions and daily reviews of Arjun’s own trades), the premium
+                  Discord and the IFVG Journal. It does not renew.
                 </>
               ),
             },
@@ -173,9 +168,9 @@ const SECTIONS: LegalSection[] = [
               label: "Prices",
               body: (
                 <>
-                  Prices are in Indian rupees, and {GST} GST is added at checkout. We may change
-                  prices. A change never applies to a period you have already paid for, and Blue
-                  Pill members can cancel before it takes effect.
+                  Prices are in Indian rupees and are the full amount you pay: nothing is added at
+                  checkout. We may change prices. A change never applies to a period you have
+                  already paid for, and Blue Pill members can cancel before it takes effect.
                 </>
               ),
             },
@@ -440,8 +435,8 @@ const SECTIONS: LegalSection[] = [
 
 const SUMMARY = [
   "Blueprint is trading education. Nothing here is investment advice, and we promise no profits.",
-  `Blue Pill is ${BLUE} + ${GST} GST a month, billed through Razorpay. Cancel any time in Settings and keep access to the end of the month you paid for.`,
-  `Red Pill is ${RED} + ${GST} GST once, by application, for ${RED_PILL_ACCESS_DAYS} days of access. It does not renew.`,
+  `Blue Pill is ${BLUE} a month, billed through Razorpay. Cancel any time in Settings and keep access to the end of the month you paid for.`,
+  `Red Pill is ${RED} once, by application, for ${RED_PILL_ACCESS_DAYS} days of access. It does not renew.`,
   "Refunds are decided case by case, and we always fix genuine billing errors.",
   "Your membership is yours alone. Do not share your login or copy and redistribute the lessons.",
 ];

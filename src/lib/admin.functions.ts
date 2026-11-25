@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { BLUE_PILL_TOTAL_PAISE } from "@/lib/pricing";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase.rpc("has_role", {
@@ -146,8 +147,8 @@ export const adminMetrics = createServerFn({ method: "GET" })
       activeSubs: activeCount,
       cancelledSubs: cancelledCount.count ?? 0,
       publishedCourses: published.count ?? 0,
-      mrrPaise: activeCount * 499 * 100,
-      arrPaise: activeCount * 499 * 100 * 12,
+      mrrPaise: activeCount * BLUE_PILL_TOTAL_PAISE,
+      arrPaise: activeCount * BLUE_PILL_TOTAL_PAISE * 12,
       recentSignups: recent.data ?? [],
       series: { days, signups: signupSeries, subs: subSeries, revenue: revenueSeries },
       todayRevenuePaise: revenueSeries[revenueSeries.length - 1] ?? 0,

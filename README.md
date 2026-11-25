@@ -21,9 +21,9 @@ Heres what you need to build...
 
 - User site (blueprint.ifvg.in) where they sign up and they can either visit
 
-The Red Pill, the appointment will be synced to my Google Calendar and user gets registration successful mail response... Upon meeting completion, and admin's approval the user gets You're In for The Red Pill email with onboarding instructions and one time payment of 4999 rs. Upon successful payment they get a button that grants them red pill role in discord
+The Red Pill, the appointment will be synced to my Google Calendar and user gets registration successful mail response... Upon meeting completion, and admin's approval the user gets You're In for The Red Pill email with onboarding instructions and one time payment of 2999 rs. Upon successful payment they get a button that grants them red pill role in discord
 
-The Blue Pill, where they directly make the payment of 499 rs per month as a recurring subscription
+The Blue Pill, where they directly make the payment of 599 rs per month as a recurring subscription
 
 Then from the members panel of the Blue Pill, they can access their courses, claim their discord roles, watch weekly market review, schedule one free private call with me which will be synced in Google calendar.
 
