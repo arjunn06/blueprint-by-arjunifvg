@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useSpring } from "motion/react";
 import {
   ArrowRight,
+  ArrowUpRight,
   BroadcastIcon,
   ChatsCircleIcon,
   ClockCounterClockwiseIcon,
@@ -21,6 +22,7 @@ import { PillCapsule } from "@/components/site/pill-capsule";
 import { MobileCtaBar } from "@/components/site/mobile-cta";
 import { Faq } from "@/components/site/faq";
 import { btnLink, btnPrimary, btnSm, container } from "@/components/site/ui";
+import { JOURNAL_URL } from "@/lib/journal";
 import {
   BLACK_FRIDAY_CODE,
   BLACK_FRIDAY_PERCENT,
@@ -90,6 +92,8 @@ type NewItem = {
   body: string;
   span: string;
   tone?: "feature" | "solid";
+  /** Makes the whole card a link that opens in a new tab. */
+  href?: string;
 };
 
 const NEW_IN_2: NewItem[] = [
@@ -99,6 +103,7 @@ const NEW_IN_2: NewItem[] = [
     body: "A Trading Journal subscription now comes with your Blue Pill, at no extra cost.",
     span: "lg:col-span-7",
     tone: "feature",
+    href: JOURNAL_URL,
   },
   {
     icon: ClockCounterClockwiseIcon,
@@ -357,29 +362,26 @@ function WhatsNew() {
 }
 
 function NewCard({ item }: { item: NewItem }) {
-  const { icon: IconEl, title, body, tone } = item;
+  const { icon: IconEl, title, body, tone, href } = item;
   const solid = tone === "solid";
   const feature = tone === "feature";
-  return (
-    <div
-      className={`flex h-full flex-col justify-end rounded-panel p-8 transition-colors duration-300 ${
-        feature ? "min-h-[260px]" : "min-h-[220px]"
-      } ${
-        solid
-          ? "bg-primary text-primary-foreground"
-          : feature
-            ? "border border-active/25 hover:border-active/50"
-            : "border border-border bg-surface hover:border-active/40"
-      }`}
-      style={
-        feature
-          ? {
-              background:
-                "radial-gradient(520px 320px at 100% 0%, hsl(214 90% 66% / 0.16), transparent 65%), linear-gradient(180deg, var(--blue-10), var(--surface))",
-            }
-          : undefined
+  const className = `flex h-full flex-col justify-end rounded-panel p-8 transition duration-300 ${
+    feature ? "min-h-[260px]" : "min-h-[220px]"
+  } ${
+    solid
+      ? "bg-primary text-primary-foreground"
+      : feature
+        ? "border border-active/25 hover:border-active/50"
+        : "border border-border bg-surface hover:border-active/40"
+  } ${href ? "group hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring" : ""}`;
+  const style = feature
+    ? {
+        background:
+          "radial-gradient(520px 320px at 100% 0%, hsl(214 90% 66% / 0.16), transparent 65%), linear-gradient(180deg, var(--blue-10), var(--surface))",
       }
-    >
+    : undefined;
+  const content = (
+    <>
       <div className="mb-auto flex items-start justify-between">
         <IconEl
           className={`${feature ? "size-14" : "size-10"} ${solid ? "" : feature ? "text-active" : "text-primary"}`}
@@ -403,6 +405,25 @@ function NewCard({ item }: { item: NewItem }) {
       >
         {body}
       </p>
+      {href && (
+        <span className="mt-5 inline-flex items-center gap-1.5 text-body font-medium text-foreground">
+          Open the Journal
+          <ArrowUpRight
+            className="size-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            weight="bold"
+          />
+          <span className="sr-only">(opens in a new tab)</span>
+        </span>
+      )}
+    </>
+  );
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className} style={style}>
+      {content}
+    </a>
+  ) : (
+    <div className={className} style={style}>
+      {content}
     </div>
   );
 }
