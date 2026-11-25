@@ -1,14 +1,6 @@
 import * as React from 'react'
-import { Section, Text } from '@react-email/components'
-import {
-  EmailShell,
-  Heading,
-  codeBox,
-  codeStyleWith,
-  footnote,
-  h1,
-  text,
-} from './_shell'
+import { Text } from '@react-email/components'
+import { CodeTile, EmailShell, Heading, codeHint, footnote, h1, text } from './_shell'
 
 interface MagicLinkEmailProps {
   siteName: string
@@ -16,17 +8,20 @@ interface MagicLinkEmailProps {
   token?: string
 }
 
+// The sign-in one-time code (Supabase "magiclink" email). There is deliberately no link or
+// button: members type the code into the sign-in page, and a link in a code email trains people
+// to click.
 export const MagicLinkEmail = ({ token }: MagicLinkEmailProps) => (
-  <EmailShell preview="Your Blueprint login code" eyebrow="ACCOUNT · LOGIN CODE">
-    <Heading style={h1}>Your login code</Heading>
+  <EmailShell preview="Your Blueprint sign-in code">
+    <Heading style={h1}>Your sign-in code</Heading>
     <Text style={text}>
-      Enter the six digits below to finish signing in. The code expires in a few minutes.
+      Enter this 6-digit code on the Blueprint sign-in page to finish signing in. It expires
+      shortly.
     </Text>
-    <Section style={codeBox}>
-      <Text style={codeStyleWith()}>{token}</Text>
-    </Section>
+    <CodeTile code={token} />
+    <Text style={codeHint}>Never share this code. Blueprint will never ask you for it.</Text>
     <Text style={footnote}>
-      Didn't try to sign in? You can ignore this email — nothing changes until the code is used.
+      Didn't try to sign in? You can ignore this email. Nothing changes until the code is used.
     </Text>
   </EmailShell>
 )
