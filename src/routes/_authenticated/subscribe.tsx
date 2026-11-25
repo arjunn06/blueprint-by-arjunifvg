@@ -10,6 +10,7 @@ import { validatePromoCode } from "@/lib/promos.functions";
 import { getAccountOverview } from "@/lib/account.functions";
 import { useEffect, useRef, useState } from "react";
 import { openRazorpay } from "@/lib/razorpay-checkout";
+import { takePendingPromo } from "@/lib/offer";
 import { BLUE_PILL_BASE_PAISE, BLUE_PILL_TOTAL_PAISE, gstOn, formatRupees } from "@/lib/pricing";
 import { toast } from "sonner";
 import {
@@ -99,6 +100,25 @@ function Subscribe() {
       toast.success(`Code ${p.code} applied`);
     },
   });
+
+  // A code carried over from a campaign page (the Black Friday landing page). Applied once and quietly:
+  // if it has expired or been used up, the coupon field is still there and says why when they type it.
+  useEffect(() => {
+    const pending = takePendingPromo();
+    if (!pending) return;
+    validate({ data: { code: pending } })
+      .then((p) => {
+        setApplied({
+          code: p.code,
+          discount_type: p.discount_type,
+          discount_value: p.discount_value,
+          description: p.description,
+        });
+        toast.success(`Code ${p.code} applied`);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (data?.isSubscribed && !paidRef.current) navigate({ to: "/app" });
