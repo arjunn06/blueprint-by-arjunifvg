@@ -208,7 +208,7 @@ function SettingsPage() {
             />
           </div>
           <div className="mt-4 text-xs text-muted-foreground">
-            {formatINR(BLUE_PILL_TOTAL_PAISE)} / month incl. 18% GST · billed via Razorpay
+            {formatINR(BLUE_PILL_TOTAL_PAISE)} / month · billed via Razorpay
           </div>
           {sub?.status === "active" && !willCancel && (
             <div className="mt-5 pt-4 border-t border-border/70 flex items-center justify-between">

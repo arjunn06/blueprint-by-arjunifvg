@@ -2,9 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { findValidInvite } from "./redpill-invite.server";
-import { RED_PILL_BASE_PAISE, RED_PILL_TOTAL_PAISE, gstOn } from "./pricing";
+import { RED_PILL_TOTAL_PAISE } from "./pricing";
 
-/** The Red Pill is a one-time ₹2,999 + 18% GST enrolment (one month, live). */
+/** The Red Pill is a one-time ₹2,999 enrolment (one month, live), with nothing added at checkout. */
 export const RED_PILL_AMOUNT_PAISE = RED_PILL_TOTAL_PAISE;
 const ACCESS_DAYS = 31;
 /** Registrations are open to everyone. */
@@ -46,12 +46,7 @@ export const createRedPillOrder = createServerFn({ method: "POST" })
         amount: RED_PILL_AMOUNT_PAISE,
         currency: "INR",
         receipt: `redpill_${userId.slice(0, 8)}_${Date.now()}`,
-        notes: {
-          user_id: userId,
-          pill: "red",
-          base_paise: RED_PILL_BASE_PAISE,
-          gst_paise: gstOn(RED_PILL_BASE_PAISE),
-        },
+        notes: { user_id: userId, pill: "red" },
       }),
     });
     const body = await res.json();

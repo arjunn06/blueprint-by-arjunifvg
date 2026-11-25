@@ -1,7 +1,7 @@
 "use client";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { APPLY_PATH, PRICE_TAXES } from "./config";
+import { APPLY_PATH, PRICE } from "./config";
 
 /**
  * Phone-only bottom bar. Shows after the hero button leaves the screen and hides whenever any
@@ -61,7 +61,7 @@ export function RpMobileBar() {
     >
       <div className="leading-tight">
         <p className="text-[13px] font-semibold">The Red Pill</p>
-        <p className="rp-mono text-[15px] font-semibold">{PRICE_TAXES}</p>
+        <p className="rp-mono text-[15px] font-semibold">{PRICE}</p>
       </div>
       <Link to={APPLY_PATH} data-cta="bar" className="rp-btn min-w-[120px] px-5">
         Apply

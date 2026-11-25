@@ -11,7 +11,7 @@ import { getAccountOverview } from "@/lib/account.functions";
 import { useEffect, useRef, useState } from "react";
 import { openRazorpay } from "@/lib/razorpay-checkout";
 import { takePendingPromo } from "@/lib/offer";
-import { BLUE_PILL_BASE_PAISE, BLUE_PILL_TOTAL_PAISE, gstOn, formatRupees } from "@/lib/pricing";
+import { BLUE_PILL_TOTAL_PAISE, formatRupees } from "@/lib/pricing";
 import { toast } from "sonner";
 import {
   BellRinging,
@@ -159,7 +159,7 @@ function Subscribe() {
           key: keyId,
           subscription_id: subscriptionId,
           name: "Blueprint · Blue Pill",
-          description: `Monthly membership: ${formatRupees(BLUE_PILL_BASE_PAISE)} + ${formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST (18%)`,
+          description: `Monthly membership: ${formatRupees(BLUE_PILL_TOTAL_PAISE)} a month`,
           theme: { color: "#3F7BEA" },
           prefill: {
             email: data?.profile?.email ?? undefined,
@@ -311,9 +311,8 @@ function Subscribe() {
         </button>
 
         <p className="text-center text-hint text-tertiary">
-          {formatRupees(BLUE_PILL_BASE_PAISE)} + {formatRupees(gstOn(BLUE_PILL_BASE_PAISE))} GST
-          (18%) = {formatRupees(BLUE_PILL_TOTAL_PAISE)} a month, billed through Razorpay. Cancel
-          anytime from Settings. By paying you agree to our{" "}
+          {formatRupees(BLUE_PILL_TOTAL_PAISE)} a month, billed through Razorpay. Cancel anytime
+          from Settings. By paying you agree to our{" "}
           <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
             Terms of Service
           </Link>
@@ -377,7 +376,7 @@ function discountCopy(p: AppliedPromo) {
   return `You got ₹${p.discount_value} off on your first month.`;
 }
 
-/** First charge after the code (list price incl. GST), or null for a free trial. */
+/** First charge after the code (off the monthly price), or null for a free trial. */
 function firstChargePaise(p: AppliedPromo): number | null {
   if (p.discount_type === "trial_days") return null;
   if (p.discount_type === "percent_off_first")

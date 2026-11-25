@@ -12,6 +12,7 @@ import {
   adminListMemberships,
 } from "@/lib/admin.functions";
 import { adminGetUserDetail } from "@/lib/admin.functions";
+import { BLUE_PILL_TOTAL_PAISE } from "@/lib/pricing";
 import { Input } from "@/components/ui/input";
 import { useMemo, useState } from "react";
 import { Plus, Mail, Filter, X, MoreHorizontal, Ban, XCircle, RefreshCw, UserPlus, Loader2, CalendarDays, Trash2, Shield, ShieldOff } from "lucide-react";
@@ -301,7 +302,7 @@ function MembershipsTable({ onSelect }: { onSelect: (id: string) => void }) {
     queryFn: () => fn(),
   });
   const rows = (data ?? []) as Membership[];
-  const mrr = rows.length * 499;
+  const mrr = (rows.length * BLUE_PILL_TOTAL_PAISE) / 100;
 
   return (
     <>

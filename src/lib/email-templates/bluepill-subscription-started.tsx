@@ -12,6 +12,7 @@ import {
   strong,
   text,
 } from './_shell'
+import { BLUE_PILL_TOTAL_PAISE, formatRupees } from '../pricing'
 import { JOURNAL_URL } from '../journal'
 import type { TemplateEntry } from './registry'
 
@@ -35,7 +36,7 @@ const BluePillSubscriptionStarted = ({ name, amount, nextChargeDate, appUrl }: P
 
     <Section style={infoBox}>
       <Text style={rowLabel}>Plan</Text>
-      <Text style={rowValue}>Blue Pill · Monthly {amount ? `· ${amount}` : '· ₹499'}</Text>
+      <Text style={rowValue}>Blue Pill · Monthly · {amount ?? formatRupees(BLUE_PILL_TOTAL_PAISE)}</Text>
       <Text style={rowLabel}>Next charge</Text>
       <Text style={{ ...rowValue, margin: 0 }}>
         {nextChargeDate ?? 'One month from today'}
@@ -68,7 +69,7 @@ export const template = {
   displayName: 'Blue Pill subscription started',
   previewData: {
     name: 'Arjun',
-    amount: '₹499/month',
+    amount: `${formatRupees(BLUE_PILL_TOTAL_PAISE)}/month`,
     nextChargeDate: '10 September 2026',
     appUrl: 'https://blueprint.ifvg.in/app',
   },

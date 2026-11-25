@@ -1,7 +1,7 @@
 "use client";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { APPLY_PATH, PRICE_TAXES } from "./config";
+import { APPLY_PATH, PRICE } from "./config";
 
 const LINKS = [
   { id: "month", label: "The month" },
@@ -79,7 +79,7 @@ export function RpNav() {
           ))}
         </nav>
         <div className="rp-nav-cta hidden items-center gap-4 m:flex" data-hidden={!heroCtaGone}>
-          <span className="rp-mono rp-ink2 hidden text-sm l:inline">{PRICE_TAXES}</span>
+          <span className="rp-mono rp-ink2 hidden text-sm l:inline">{PRICE}</span>
           <Link
             to={APPLY_PATH}
             data-cta="nav"

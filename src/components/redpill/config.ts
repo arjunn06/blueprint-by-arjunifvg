@@ -6,12 +6,10 @@
  * Nothing on the page may be invented: no seat counts, dates, guarantees or student numbers.
  */
 
-import { RED_PILL_BASE_PAISE, RED_PILL_TOTAL_PAISE, formatRupees, gstOn } from "@/lib/pricing";
+import { RED_PILL_TOTAL_PAISE, formatRupees } from "@/lib/pricing";
 
-export const PRICE = formatRupees(RED_PILL_BASE_PAISE);
-/** Every price on the page carries "+ taxes": checkout adds 18% GST on top of the list price. */
-export const PRICE_TAXES = `${PRICE} + taxes`;
-export const TAX_LINE = `+ ${formatRupees(gstOn(RED_PILL_BASE_PAISE))} GST (18%) = ${formatRupees(RED_PILL_TOTAL_PAISE)} total at checkout.`;
+/** The full price: checkout adds nothing on top. */
+export const PRICE = formatRupees(RED_PILL_TOTAL_PAISE);
 export const VIDEO_ID = "2fxjbw5fdsk";
 export const APPLY_PATH = "/redpill/apply" as const;
 export const DISCORD_REVIEWS_URL =
@@ -35,8 +33,6 @@ export type RpConfig = {
   scheduleLine?: string; // e.g. "Classes run Mon to Fri at 8 PM IST."
   firstSession?: string; // e.g. "Mon 2 Nov, 8:00 PM IST"
 
-  /** Shown under the price. Built from src/lib/pricing.ts so it always matches checkout. */
-  taxLine?: string;
   /** One plain sentence. Must match the Cancellation and Refund page. */
   refundLine?: string;
   /** e.g. "UPI, cards or netbanking": list only methods enabled in the Razorpay dashboard. */
@@ -69,7 +65,6 @@ export const RP: RpConfig = {
   heroVariant: "default",
   weeksVariant: "default",
   noteVoice: "third",
-  taxLine: TAX_LINE,
   /** Matches section 6 of the Terms of Service (src/routes/terms.tsx). Change both together. */
   refundLine: "We decide each request case by case, and always fix genuine billing errors.",
   bluePillLink: false,
@@ -211,12 +206,12 @@ export function buildFaq(c: RpConfig): FaqEntry[] {
     {
       id: "recurring",
       q: "Is there a recurring charge?",
-      a: `No. It is one payment of ${PRICE_TAXES} on Razorpay. Nothing renews.`,
+      a: `No. It is one payment of ${PRICE} on Razorpay. Nothing renews.`,
     },
     {
       id: "join",
       q: "How do I join?",
-      a: `Apply with a short form. Arjun reviews every application and picks who gets a slot on a call. If you are picked, pay ${PRICE_TAXES} on Razorpay, then get your Red Pill role in the Discord. Session links are shared there.`,
+      a: `Apply with a short form. Arjun reviews every application and picks who gets a slot on a call. If you are picked, pay ${PRICE} on Razorpay, then get your Red Pill role in the Discord. Session links are shared there.`,
     },
     {
       id: "advice",

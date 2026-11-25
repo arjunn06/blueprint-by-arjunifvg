@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { adminListSubscriptions, adminGetInvoiceUrl } from "@/lib/admin.functions";
 import { formatINR } from "@/components/app/sidebar";
+import { BLUE_PILL_TOTAL_PAISE } from "@/lib/pricing";
 import { Check, X, MoreHorizontal, Plus, Filter, Download, Pencil } from "lucide-react";
 import {
   DropdownMenu,
@@ -98,7 +99,9 @@ function PaymentsPage() {
                       <StatusBadge status={s.status} />
                     </Td>
                     <Td>The Blue Pill</Td>
-                    <Td className="text-muted-foreground">₹499.00 / month</Td>
+                    <Td className="text-muted-foreground">
+                      {formatINR(BLUE_PILL_TOTAL_PAISE)} / month
+                    </Td>
                     <Td className="text-muted-foreground">
                       {s.cancelled_at ? "Cancellation" : "Subscription renewal"}
                     </Td>

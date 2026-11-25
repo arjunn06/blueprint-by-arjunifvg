@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Two ways to learn IFVG trading: The Red Pill 1-month live Zoom mentorship at ₹2,999 + taxes, or The Blue Pill community at ₹499/month + taxes.",
+          "Two ways to learn IFVG trading: The Red Pill 1-month live Zoom mentorship at ₹2,999, or The Blue Pill community at ₹599/month.",
       },
       { property: "og:title", content: TITLE },
       {
         property: "og:description",
         content:
-          "Red Pill: 1-month live IFVG mentorship at ₹2,999 + taxes. Blue Pill: community at ₹499/month + taxes.",
+          "Red Pill: 1-month live IFVG mentorship at ₹2,999. Blue Pill: community at ₹599/month.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://blueprint.ifvg.in/" },
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
       {
         name: "twitter:description",
         content:
-          "Red Pill: 1-month live IFVG mentorship at ₹2,999 + taxes. Blue Pill: community at ₹499/month + taxes.",
+          "Red Pill: 1-month live IFVG mentorship at ₹2,999. Blue Pill: community at ₹599/month.",
       },
       { name: "twitter:image", content: "https://blueprint.ifvg.in/og-home.jpg" },
     ],
@@ -61,7 +61,7 @@ const FAQ: FaqItem[] = [
   },
   {
     q: "How does payment work?",
-    a: "Payments run securely through Razorpay. The Red Pill is a single payment of ₹2,999 + taxes with no recurring charge. The Blue Pill is ₹499 a month + taxes.",
+    a: "Payments run securely through Razorpay. The Red Pill is a single payment of ₹2,999 with no recurring charge. The Blue Pill is ₹599 a month.",
   },
   {
     q: "Can I start with the Blue Pill and join the Red Pill later?",
@@ -235,7 +235,7 @@ function Pills() {
                 <p className="font-display tabular text-5xl font-extrabold tracking-[-0.04em] md:text-6xl">
                   ₹2,999
                   <span className="ml-2 font-sans text-sm font-normal text-muted-foreground">
-                    one-time + taxes
+                    one-time
                   </span>
                 </p>
                 <Link to="/redpill" className={btnPrimary}>
@@ -274,9 +274,9 @@ function Pills() {
               </ul>
               <div className="mt-auto flex flex-wrap items-end justify-between gap-6 pt-12">
                 <p className="font-display tabular text-4xl font-extrabold tracking-[-0.04em] md:text-5xl">
-                  ₹499
+                  ₹599
                   <span className="ml-2 font-sans text-sm font-normal text-muted-foreground">
-                    /month + taxes
+                    /month
                   </span>
                 </p>
                 <Link to="/bluepill" className={btnGhost}>
@@ -303,7 +303,7 @@ const STEPS = [
   {
     icon: CreditCard,
     title: "Pay once or monthly",
-    body: "Red Pill is ₹2,999 + taxes, one-time. Blue Pill is ₹499 a month + taxes. Both run through Razorpay.",
+    body: "Red Pill is ₹2,999, one-time. Blue Pill is ₹599 a month. Both run through Razorpay.",
   },
   {
     icon: DiscordLogo,

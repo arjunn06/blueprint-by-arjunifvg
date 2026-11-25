@@ -11,6 +11,7 @@ import {
   strong,
   text,
 } from './_shell'
+import { BLUE_PILL_TOTAL_PAISE, formatRupees } from '../pricing'
 import type { TemplateEntry } from './registry'
 
 interface Props {
@@ -33,7 +34,7 @@ const BluePillPaymentDue = ({ name, amount, dueDate, billingUrl }: Props) => (
 
     <Section style={infoBox}>
       <Text style={rowLabel}>Amount due</Text>
-      <Text style={rowValue}>{amount ?? '₹499'}</Text>
+      <Text style={rowValue}>{amount ?? formatRupees(BLUE_PILL_TOTAL_PAISE)}</Text>
       <Text style={rowLabel}>Due</Text>
       <Text style={{ ...rowValue, margin: 0 }}>{dueDate ?? 'As soon as possible'}</Text>
     </Section>
@@ -56,7 +57,7 @@ export const template = {
   displayName: 'Blue Pill payment due',
   previewData: {
     name: 'Arjun',
-    amount: '₹499',
+    amount: formatRupees(BLUE_PILL_TOTAL_PAISE),
     dueDate: '12 September 2026',
     billingUrl: 'https://blueprint.ifvg.in/app/settings',
   },
