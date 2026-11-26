@@ -12,18 +12,9 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 }
 
 async function assertMember(ctx: { supabase: any; userId: string }) {
-  // Admins always have access.
-  const { data: isAdmin } = await ctx.supabase.rpc("has_role", {
-    _user_id: ctx.userId,
-    _role: "admin",
-  });
-  if (isAdmin) return true;
-  const { data: sub } = await ctx.supabase
-    .from("subscriptions")
-    .select("status")
-    .eq("user_id", ctx.userId)
-    .maybeSingle();
-  return sub?.status === "active";
+  // Same rule as the app shell, Discord and RLS: see isEntitled / hasCourseAccess.
+  const { hasCourseAccess } = await import("@/lib/membership.server");
+  return hasCourseAccess(ctx.supabase, ctx.userId);
 }
 
 /* ---------------- MEMBER ---------------- */
