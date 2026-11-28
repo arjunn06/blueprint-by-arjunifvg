@@ -9,6 +9,7 @@ import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
 import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
+import { pinAuthRedirect } from '@/lib/canonical-host'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
   signup: 'Confirm your email',
@@ -93,9 +94,12 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
         }
 
         const { email_data: d, user } = payload
+        // Without an allowed redirect from the app, Supabase fills this with its Site URL, which was the workers.dev
+        // address; Razorpay rejects payments made there. pinAuthRedirect sends those links to the real domain.
+        const redirectTo = pinAuthRedirect(d.redirect_to ?? d.site_url)
         const verifyUrl = (tokenHash: string) =>
           `${supabaseUrl}/auth/v1/verify?token=${encodeURIComponent(tokenHash)}` +
-          `&type=${encodeURIComponent(emailType)}&redirect_to=${encodeURIComponent(d.redirect_to ?? d.site_url ?? '')}`
+          `&type=${encodeURIComponent(emailType)}&redirect_to=${encodeURIComponent(redirectTo)}`
 
         // Secure email change sends one email to each address (current + new).
         const recipients: { to: string; token: string; tokenHash: string }[] = [

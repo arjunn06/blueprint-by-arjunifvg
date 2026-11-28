@@ -72,7 +72,11 @@ function AuthPage() {
   async function sendCode(targetEmail: string) {
     const { error } = await supabase.auth.signInWithOtp({
       email: targetEmail,
-      options: { shouldCreateUser: true },
+      // A new member's confirmation email links here. Without it Supabase uses its Site URL for the landing page.
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     if (error) throw error;
     setCooldown(RESEND_SECONDS);
