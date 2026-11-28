@@ -1,5 +1,6 @@
 import "./lib/error-capture";
 
+import { canonicalRedirectUrl } from "./lib/canonical-host";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
@@ -40,6 +41,16 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // Razorpay's live checkout rejects any domain but blueprint.ifvg.in, so a page load on the Worker's own
+      // workers.dev address (a stale link, Supabase's Site URL) moves to the real domain before anything renders.
+      const canonical = canonicalRedirectUrl(new URL(request.url), request.method);
+      if (canonical) {
+        return new Response(null, {
+          status: 307,
+          headers: { location: canonical, "cache-control": "no-store" },
+        });
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

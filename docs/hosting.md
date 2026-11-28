@@ -61,6 +61,13 @@ change them if the domain changes.
 | pg_cron `subscription-sweep` (hourly)     | `/api/public/cron/subscription-sweep`                               |
 | pg_cron `process-email-queue` (every 5 s) | `/lovable/email/queue/process`                                      |
 
+**Keep Site URL on `https://blueprint.ifvg.in`, never the `*.workers.dev` address.** Supabase uses it as the landing page
+for any auth email link the app did not give an allowed redirect for, and Razorpay's live checkout rejects payments from
+any other domain. As a backstop, the Worker sends page loads on its own workers.dev address to the real domain
+(`src/lib/canonical-host.ts`, called from `src/server.ts`; `/api/` and `/lovable/` paths are left alone so
+`/api/public/env-check` still answers there), and the Send Email hook swaps a workers.dev `redirect_to` for
+`/auth/callback` on the real domain.
+
 The `/lovable/email/...` paths are historical names. They are kept because the Supabase hook, the Resend webhook and the
 queue job all call them. Renaming means changing those three at the same moment.
 
